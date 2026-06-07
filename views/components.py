@@ -10,6 +10,7 @@ La idea es evitar repetir código en cada pantalla.
 """
 
 import tkinter as tk
+from tkinter import ttk
 from tkinter import messagebox
 
 
@@ -254,3 +255,81 @@ def crear_pantalla_base(frame, titulo, descripcion):
         "Ejecutar función correspondiente",
         mostrar_funcion_correspondiente
     )
+
+# ============================================================================
+# COMPONENTES DE CONSULTAS Y RESULTADOS (NUEVO)
+# ============================================================================
+
+def crear_etiqueta_info(parent, texto):
+    lbl = tk.Label(
+        parent,
+        text=texto,
+        bg=COLOR_FONDO,
+        fg=COLOR_TEXTO_OSCURO,
+        font=("Arial", 10)
+    )
+    lbl.pack(pady=10)
+    return lbl
+
+
+def crear_etiqueta_error(parent, texto):
+    """
+    Crea una etiqueta de texto para mensajes de error o advertencia.
+    """
+    lbl = tk.Label(
+        parent,
+        text=texto,
+        bg=COLOR_FONDO,
+        fg="red",
+        font=("Arial", 10, "bold")
+    )
+    lbl.pack(pady=20)
+    return lbl
+
+
+def crear_combobox(parent, valores, estado="readonly", ancho=50):
+    """
+    Crea un menú desplegable (Combobox) estandarizado.
+    """
+    combo = ttk.Combobox(
+        parent,
+        values=valores,
+        state=estado,
+        width=ancho,
+        font=("Arial", 10)
+    )
+    combo.pack(pady=5)
+    if len(valores) > 0:
+        combo.current(0) # Selecciona el primero por defecto
+    return combo
+
+
+def crear_contenedor_resultados(parent):
+    """
+    Crea un frame limpio y estandarizado para mostrar resultados (tablas, textos, etc.).
+    """
+    frame_res = tk.Frame(
+        parent,
+        bg="#ffffff", # Fondo blanco para que resalten los datos
+        relief="sunken",
+        borderwidth=1
+    )
+    frame_res.pack(fill="both", expand=True, pady=15, padx=20)
+    return frame_res
+
+
+def mostrar_mensaje_en_resultados(frame_resultados, texto):
+    """
+    Limpia el frame de resultados y muestra un mensaje temporal.
+    Ideal para los placeholders o mensajes de "Cargando...".
+    """
+    limpiar_frame(frame_resultados)
+    lbl = tk.Label(
+        frame_resultados,
+        text=texto,
+        bg="#ffffff",
+        fg=COLOR_TEXTO_OSCURO,
+        font=("Arial", 11, "italic")
+    )
+    lbl.pack(expand=True) # expand=True lo centra perfectamente
+    return lbl

@@ -30,78 +30,66 @@ from views.consultas_view import *
 MENU_ROLES = {
 
     "administrador": {
-
         "Ventas": [
             ("Nueva venta", mostrar_nueva_venta),
             ("Historial ventas", mostrar_historial_ventas),
             ("Anular venta", mostrar_anular_venta)
         ],
-
         "Inventario": [
             ("Gestión de productos", mostrar_productos),
             ("Stock crítico", mostrar_stock_critico),
             ("Categorías", mostrar_categorias)
         ],
-
         "Compras": [
             ("Registrar compra", mostrar_registrar_compra),
             ("Proveedores", mostrar_proveedores)
         ],
-
         "Reportes": [
             ("Rendimientos mensuales", mostrar_rendimientos),
             ("Ranking de productos", mostrar_ranking_productos),
             ("Rendimiento por vendedor", mostrar_rendimiento_vendedor)
         ],
-
         "Administración": [
-            ("Gestión de usuarios", mostrar_usuarios)
+            ("Gestión de usuarios", mostrar_usuarios),
+            ("Auditoría SQL Avanzada", mostrar_consultas_avanzadas) 
         ]
     },
 
     "gerente": {
-
         "Reportes": [
             ("Rendimientos mensuales", mostrar_rendimientos),
             ("Ranking de productos", mostrar_ranking_productos),
             ("Rendimiento por vendedor", mostrar_rendimiento_vendedor),
             ("Ventas por forma de pago", mostrar_formas_pago)
         ],
-
         "Consultas": [
-            ("Productos sobre promedio", mostrar_productos_sobre_promedio),
-            ("Vendedores activos", mostrar_vendedores_activos)
+            ("Consultas del Sistema", mostrar_consultas_avanzadas)
         ]
     },
 
     "vendedor": {
-
         "Ventas": [
             ("Nueva venta", mostrar_nueva_venta),
             ("Mis ventas del día", mostrar_mis_ventas)
         ],
-
         "Inventario": [
             ("Consultar stock", mostrar_consulta_stock),
-            ("Productos sobre promedio", mostrar_productos_sobre_promedio)
+            ("Consultas permitidas", mostrar_consultas_avanzadas)
         ]
     },
 
     "depositero": {
-
         "Inventario": [
             ("Gestión de productos", mostrar_productos),
             ("Stock crítico", mostrar_stock_critico),
             ("Categorías", mostrar_categorias)
         ],
-
         "Compras": [
             ("Registrar compra", mostrar_registrar_compra),
             ("Proveedores", mostrar_proveedores)
         ],
-
         "Consultas": [
-            ("Producto con mayor stock", mostrar_producto_mayor_stock)
+            ("Consultas de Depósito", mostrar_consultas_avanzadas)
         ]
     }
 }

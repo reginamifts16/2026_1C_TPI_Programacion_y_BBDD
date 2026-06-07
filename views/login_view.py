@@ -22,9 +22,15 @@ a logic\auth.py
 
 import tkinter as tk
 from tkinter import messagebox
+from tkinter import ttk
 
 from views.menu_principal import mostrar_menu_principal
 from views.components import *
+
+
+# PROVISORIO
+from views.consultas_view import asignar_rol_logueado
+
 
 
 USUARIOS_DEMO = {
@@ -128,7 +134,7 @@ def mostrar_login():
     entry_password.pack(pady=(0, 20))
 
     def validar_login():
-
+        
         usuario = entry_usuario.get().strip()
         password = entry_password.get().strip()
 
@@ -152,8 +158,9 @@ def mostrar_login():
 
         usuario_logueado = {
             "nombre": USUARIOS_DEMO[usuario]["nombre"],
-            "rol": USUARIOS_DEMO[usuario]["rol"]
-        }
+            "rol": USUARIOS_DEMO[usuario]["rol"]            
+        }        
+        asignar_rol_logueado(USUARIOS_DEMO[usuario]["rol"])
 
         ventana.destroy()
 
