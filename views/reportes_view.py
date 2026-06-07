@@ -9,6 +9,7 @@ Pantallas relacionadas con reportes y análisis.
 Estas vistas serán utilizadas principalmente por:
 - Administrador
 - Gerente
+CODER: Regina
 ===============================================================================
 """
 

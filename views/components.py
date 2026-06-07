@@ -6,6 +6,7 @@ CAPA: Vista (views)
 DESCRIPCIÓN:
 Componentes reutilizables para toda la interfaz gráfica.
 La idea es evitar repetir código en cada pantalla.
+CODER: Regina
 ===============================================================================
 """
 

@@ -12,6 +12,7 @@ Contiene:
 - Área central de contenido
 
 Todas las pantallas se cargan dentro del frame de contenido.
+CODER: Regina
 ===============================================================================
 """
 

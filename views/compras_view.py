@@ -9,6 +9,7 @@ Pantallas relacionadas con compras y proveedores.
 Estas vistas serán utilizadas principalmente por:
 - Administrador
 - Depositero
+CODER: Regina
 ===============================================================================
 """
 

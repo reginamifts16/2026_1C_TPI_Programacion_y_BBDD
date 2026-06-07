@@ -8,6 +8,7 @@ Pantallas relacionadas con la administración de usuarios.
 
 Estas vistas serán utilizadas exclusivamente por:
 - Administrador
+CODER: Regina
 ===============================================================================
 """
 

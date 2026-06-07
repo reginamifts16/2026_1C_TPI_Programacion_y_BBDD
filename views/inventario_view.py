@@ -5,6 +5,7 @@ MÓDULO: inventario_view.py
 CAPA: Vista (views)
 DESCRIPCIÓN:
 Pantallas relacionadas con inventario y productos.
+CODER: Regina
 ===============================================================================
 """
 

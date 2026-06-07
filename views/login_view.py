@@ -17,6 +17,7 @@ Por ahora no consulta la base de datos.
 La autenticación está simulada para facilitar el desarrollo.
 Una vez que todo funcione, volar la hardcodeada y la lógica de login pasarla
 a logic\auth.py
+CODER: Regina
 ===============================================================================
 """
 

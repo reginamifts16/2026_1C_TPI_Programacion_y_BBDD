@@ -9,6 +9,7 @@ Pantallas relacionadas con ventas.
 Por ahora son esqueletos visuales.
 Los botones muestran un mensaje temporal para que el equipo
 pueda concentrarse primero en la navegación.
+CODER: Regina
 ===============================================================================
 """
 

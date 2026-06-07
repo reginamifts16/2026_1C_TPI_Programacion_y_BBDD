@@ -10,6 +10,7 @@ Estas vistas serán utilizadas principalmente por:
 - Gerente
 - Vendedor
 - Depositero
+CODER: Regina
 ===============================================================================
 """
 import tkinter as tk
@@ -41,10 +42,10 @@ def asignar_rol_logueado(rol_recibido):
 DICCIONARIO_CONSULTAS = {
     "administrador": [
         # --- Básicas ---
-        "1. Listar todos los productos activos ordenados por precio de venta (Básica)",
+        "1. Productos activos ordenados por precio de venta (Básica)",
         "2. Listar usuarios por rol (Básica)",
         "3. Productos con stock por debajo del mínimo (Básica)",
-        "4. Listar todos los proveedores activos (Básica)",
+        "4. Proveedores activos (Básica)",
         "5. Buscar producto por descripción (LIKE) (Básica)",
         # --- JOIN ---
         "6. Ventas con nombre del vendedor que las registró (JOIN)",
@@ -59,13 +60,13 @@ DICCIONARIO_CONSULTAS = {
         "14. Categoría más vendida (GROUP BY)",
         "15. Cantidad de ventas por mes (GROUP BY)",
         "16. Ticket promedio general (GROUP BY)",
-        "17. Categorías con más de N productos activos (HAVING) (GROUP BY + HAVING)",
+        "17. Categorías con más de 5 productos activos (HAVING) (GROUP BY + HAVING)",
         "18. Vendedores con ticket promedio superior a un monto (HAVING) (GROUP BY + HAVING)",
-        "19. Proveedores a los que se compró más de N veces (HAVING) (GROUP BY + HAVING)",
+        "19. Proveedores frecuentes (más de 5 compras) (HAVING) (GROUP BY + HAVING)",
         # --- Subconsultas ---
         "20. Producto con el mayor stock actual (Subconsulta escalar)",
-        "21. Productos vendidos en ventas pagadas con crédito (Subconsulta IN)",
-        "22. Vendedores que tienen al menos una venta registrada (Subconsulta EXISTS)",
+        "21. Productos vendidos pagados con crédito (Subconsulta IN)",
+        "22. Vendedores con al menos una venta registrada (Subconsulta EXISTS)",
         "23. Productos cuyo precio supera el promedio de su categoría (Subconsulta correlacionada)"
     ],
     "gerente": [
@@ -81,13 +82,13 @@ DICCIONARIO_CONSULTAS = {
         "8. Ticket promedio general (GROUP BY)",
         "9. Vendedores con ticket promedio superior a un monto (HAVING) (GROUP BY + HAVING)",
         # --- Subconsultas ---
-        "10. Productos vendidos en ventas pagadas con crédito (Subconsulta IN)",
-        "11. Vendedores que tienen al menos una venta registrada (Subconsulta EXISTS)",
+        "10. Productos vendidos pagados con crédito (Subconsulta IN)",
+        "11. Vendedores con al menos una venta registrada (Subconsulta EXISTS)",
         "12. Productos cuyo precio supera el promedio de su categoría (Subconsulta correlacionada)"
     ],
     "vendedor": [
         # --- Básicas ---
-        "1. Listar todos los productos activos ordenados por precio de venta (Básica)",
+        "1. Productos activos ordenados por precio de venta (Básica)",
         "2. Buscar producto por descripción (LIKE) (Básica)",
         # --- JOIN ---
         "3. Detalle de venta con descripción y precio de cada producto (JOIN)",
@@ -96,7 +97,7 @@ DICCIONARIO_CONSULTAS = {
     ],
     "depositero": [
         # --- Básicas ---
-        "1. Listar todos los productos activos ordenados por precio de venta (Básica)",
+        "1. Productos activos ordenados por precio de venta (Básica)",
         "2. Productos con stock por debajo del mínimo (Básica)",
         "3. Listar todos los proveedores activos (Básica)",
         "4. Buscar producto por descripción (LIKE) (Básica)",
@@ -104,8 +105,8 @@ DICCIONARIO_CONSULTAS = {
         "5. Compras con nombre del proveedor (JOIN)",
         "6. Productos que nunca fueron comprados a ningún proveedor (LEFT JOIN + NULL) (JOIN)",
         # --- GROUP BY + HAVING ---
-        "7. Categorías con más de N productos activos (HAVING) (GROUP BY + HAVING)",
-        "8. Proveedores a los que se compró más de N veces (HAVING) (GROUP BY + HAVING)",
+        "7. Categorías con más de 5 productos activos (HAVING) (GROUP BY + HAVING)",
+        "8. Proveedores frecuentes (más de 5 compras) (HAVING) (GROUP BY + HAVING)",
         # --- Subconsultas ---
         "9. Producto con el mayor stock actual (Subconsulta escalar)"
     ]
@@ -123,42 +124,8 @@ def obtener_consultas_por_rol(rol):
     
     # Retorna la lista de strings para el Combobox de Tkinter
     return DICCIONARIO_CONSULTAS.get(rol_key, ["No hay consultas asignadas para este rol"])
-    """
-def obtener_consultas_por_rol(rol):
-    Devuelve una lista de textos simples con las consultas permitidas para cada rol.
     
-    # NOTA: Se eliminó la asignación local "ROL_USUARIO_LOGUEADO = rol" 
-    # porque ensombrecía la variable global y no era necesaria.
-    
-    if rol == "administrador":
-        return [
-            "1. Productos sobre promedio de categoría",
-            "2. Listado de vendedores activos (JOIN)",
-            "3. Producto con mayor stock (Subconsulta)",
-            "4. Productos sin ventas (Subconsulta IN)",
-            "5. Rendimiento por vendedor (GROUP BY)",
-            "6. Proveedores sin compras (NOT EXISTS)"
-        ]
-    elif rol == "gerente":
-        return [
-            "1. Productos sobre promedio de categoría",
-            "2. Listado de vendedores activos (JOIN)",
-            "3. Producto con mayor stock (Subconsulta)",
-            "5. Rendimiento por vendedor (GROUP BY)", 
-            "6. Proveedores sin compras (NOT EXISTS)"
-        ]
-    elif rol == "vendedor":
-        return [
-            "1. Productos sobre promedio de categoría"
-        ]
-    elif rol == "depositero":
-        return [
-            "1. Productos sobre promedio de categoría",
-            "3. Producto con mayor stock (Subconsulta)"
-        ]
-    else:
-        return []
-"""
+
 
 def mostrar_consultas_avanzadas(frame):
     """
@@ -207,46 +174,3 @@ def mostrar_consultas_avanzadas(frame):
     # 5. Botón de acción
     crear_boton_accion(frame, "Ejecutar Consulta", ejecutar_consulta_seleccionada)
 
-"""
-from views.components import *
-
-
-# =============================================================================
-# PRODUCTOS SOBRE PROMEDIO DE CATEGORÍA
-# =============================================================================
-
-def mostrar_productos_sobre_promedio(frame):
-
-    crear_pantalla_base(
-        frame,
-        "Productos Sobre el Promedio de la Categoría",
-        "Consulta de productos cuyo desempeño supera el promedio "
-        "de su categoría."
-    )
-
-
-# =============================================================================
-# VENDEDORES ACTIVOS
-# =============================================================================
-
-def mostrar_vendedores_activos(frame):
-
-    crear_pantalla_base(
-        frame,
-        "Vendedores con Ventas Activas",
-        "Consulta de vendedores con actividad registrada."
-    )
-
-
-# =============================================================================
-# PRODUCTO CON MAYOR STOCK
-# =============================================================================
-
-def mostrar_producto_mayor_stock(frame):
-
-    crear_pantalla_base(
-        frame,
-        "Producto con Mayor Stock",
-        "Consulta del producto con mayor disponibilidad en inventario."
-    )
-"""
