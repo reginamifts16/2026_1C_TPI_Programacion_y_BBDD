@@ -3,3 +3,5 @@ views/__pycache__/components.cpython-314.pyc
 views/__pycache__/consultas_view.cpython-314.pyc
 views/__pycache__/compras_view.cpython-314.pyc
 /views/__pycache__
+/db/__pycache__
+/logic/__pycache__

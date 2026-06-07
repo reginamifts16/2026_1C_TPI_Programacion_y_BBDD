@@ -2,7 +2,7 @@
 ===============================================================================
 PROYECTO: Tecno Store - Sistema de Gestión y Punto de Venta
 MÓDULO: connection.py
-CAPA: Base de Datos
+CAPA: Acceso a Datos 
 DESCRIPCIÓN:
 Módulo centralizado de conexión y gestión de la base de datos relacional.
 Abstrae la configuración del motor de base de datos y provee el punto de 
@@ -19,8 +19,13 @@ from mysql.connector import Error
 
 def conectar_bd():
     """
-    Establece la conexión con la base de datos tecno_store_db en XAMPP.
-    Retorna el objeto de conexión si es exitosa, o None si falla.
+    PROPÓSITO: Establece y gestiona la conexión inicial con el motor de base de datos local.
+    CODER: Regina
+    PARÁMETROS: 
+        Ninguno. Usa constantes locales para los parámetros de XAMPP (Puerto 3306).
+    RETORNO:     
+        :return: Objeto mysql.connector.connection si el enlace es exitoso, o None si falla.
+    ERRORES: Captura excepciones de tipo mysql.connector.Error para evitar caídas del sistema.
     """
     try:
         conexion = mysql.connector.connect(

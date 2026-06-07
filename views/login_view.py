@@ -28,6 +28,8 @@ from tkinter import ttk
 from views.menu_principal import mostrar_menu_principal
 from views.components import *
 
+from logic.auth import autenticar_usuario
+
 
 # PROVISORIO
 from views.consultas_view import asignar_rol_logueado
@@ -99,11 +101,7 @@ def mostrar_login():
     tk.Label(
         contenedor,
         text=(
-            "Usuarios de prueba:\n\n"
-            "admin / admin123\n"
-            "gerente / gerente123\n"
-            "vendedor / vendedor123\n"
-            "depositero / depositero123"
+            "Usuario (NombreApellido todo junto)"
         ),
         bg=COLOR_PANEL,
         fg=COLOR_TEXTO_OSCURO,
@@ -135,6 +133,35 @@ def mostrar_login():
     entry_password.pack(pady=(0, 20))
 
     def validar_login():
+        usuario = entry_usuario.get().strip()
+        password = entry_password.get().strip()
+
+        # Validación básica de campos vacíos antes de ir a la base de datos
+        if not usuario or not password:
+            messagebox.showwarning("Atención", "Por favor, complete todos los campos.")
+            return
+
+        # Consultamos a la capa lógica (auth.py) pasándole el username concatenado
+        resultado = autenticar_usuario(usuario, password)
+
+        # Si el resultado contiene la clave "error", frenamos y mostramos el mensaje
+        if "error" in resultado:
+            messagebox.showerror("Error de Autenticación", resultado["error"])
+            return
+
+        # Si la autenticación es exitosa, armamos el diccionario con los datos reales
+        usuario_logueado = {
+            "nombre": resultado["nombre"],
+            "rol": resultado["rol"]            
+        }        
+        
+        # Seteamos el rol en tu vista de consultas y levantamos el menú principal
+        asignar_rol_logueado(resultado["rol"])
+
+        ventana.destroy()
+        mostrar_menu_principal(usuario_logueado)
+
+    """def validar_login():
         
         usuario = entry_usuario.get().strip()
         password = entry_password.get().strip()
@@ -168,7 +195,7 @@ def mostrar_login():
         mostrar_menu_principal(
             usuario_logueado
         )
-
+"""
     
 
     frame_botones = tk.Frame(
