@@ -12,7 +12,7 @@ WHERE id_rol = 3;
 # obtener_stock_critico
 SELECT id_producto, id_categoria, descripcion, marca, precio_venta, stock, activo
 FROM Producto
-WHERE stock <= 4 AND activo = 1;
+WHERE stock < 5 AND activo = 1;
 
 #obtener_proveedores_activos
 SELECT id_proveedor, razon_social, telefono
