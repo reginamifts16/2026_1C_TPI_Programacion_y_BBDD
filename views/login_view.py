@@ -16,7 +16,7 @@ Usuarios de demostración:
 Por ahora no consulta la base de datos.
 La autenticación está simulada para facilitar el desarrollo.
 Una vez que todo funcione, volar la hardcodeada y la lógica de login pasarla
-a logic\auth.py
+a logic/auth.py
 CODER: Regina
 ===============================================================================
 """
@@ -35,7 +35,7 @@ from logic.auth import autenticar_usuario
 from views.consultas_view import asignar_rol_logueado
 
 
-
+"""
 USUARIOS_DEMO = {
 
     "admin": {
@@ -62,7 +62,7 @@ USUARIOS_DEMO = {
         "rol": "gerente"
     }
 }
-
+"""
 
 def mostrar_login():
 
@@ -136,26 +136,26 @@ def mostrar_login():
         usuario = entry_usuario.get().strip()
         password = entry_password.get().strip()
 
-        # Validación básica de campos vacíos antes de ir a la base de datos
+        # Validación básica
         if not usuario or not password:
             messagebox.showwarning("Atención", "Por favor, complete todos los campos.")
             return
 
-        # Consultamos a la capa lógica (auth.py) pasándole el username concatenado
+        # Consulta logic/auth.py pasándole el username (concatenado)
         resultado = autenticar_usuario(usuario, password)
 
-        # Si el resultado contiene la clave "error", frenamos y mostramos el mensaje
+        # Si el resultado tira "error", frena y mostramos mensaje
         if "error" in resultado:
             messagebox.showerror("Error de Autenticación", resultado["error"])
             return
 
-        # Si la autenticación es exitosa, armamos el diccionario con los datos reales
+        # Si loguea bien, armamos el diccionario con los datos
         usuario_logueado = {
             "nombre": resultado["nombre"],
             "rol": resultado["rol"]            
         }        
         
-        # Seteamos el rol en tu vista de consultas y levantamos el menú principal
+        # Setea el rol en la vista de consultas y levanta el menú principal
         asignar_rol_logueado(resultado["rol"])
 
         ventana.destroy()
