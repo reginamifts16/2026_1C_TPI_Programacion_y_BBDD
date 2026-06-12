@@ -147,10 +147,32 @@ ORDER BY mes ASC;
 -- Implementado dentro de VW_RendimientosMensuales
 
 /* 13. Producto más vendido por mes
-Tipo: GROUP BY
+Tipo: GROUP BY - Vista Común Expresión (CTE).
 Roles: Admin, Gerente
 Coder: Regina
 */
+
+WITH VentasPorMes AS (
+    SELECT 
+        DATE_FORMAT(v.fecha, '%Y-%m') AS mes,
+        p.id_producto,
+        p.descripcion,
+        SUM(dv.cantidad) AS total_vendido
+    FROM DetalleVenta dv
+    JOIN Venta v ON dv.id_venta = v.id_venta
+    JOIN Producto p ON dv.id_producto = p.id_producto
+    GROUP BY DATE_FORMAT(v.fecha, '%Y-%m'), p.id_producto, p.descripcion
+),
+MaximoPorMes AS (
+    SELECT mes, MAX(total_vendido) AS max_cantidad
+    FROM VentasPorMes
+    GROUP BY mes
+)
+SELECT vpm.mes, vpm.descripcion, vpm.total_vendido
+FROM VentasPorMes vpm
+JOIN MaximoPorMes mpm ON vpm.mes = mpm.mes AND vpm.total_vendido = mpm.max_cantidad;
+
+
 
 /* 14. Categoría más vendida
 Tipo: GROUP BY
