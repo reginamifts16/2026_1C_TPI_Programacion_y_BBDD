@@ -1,0 +1,67 @@
+/* ============================================================================
+   Trigger 1 - Evitar vender más stock del disponible   
+   Coder: Regina
+   ========================================================================= */
+
+DELIMITER $$
+
+CREATE TRIGGER TR_ControlStockInsuficiente
+BEFORE INSERT ON DetalleVenta
+FOR EACH ROW
+BEGIN
+
+    DECLARE v_stock_actual INT;
+
+    SELECT stock
+    INTO v_stock_actual
+    FROM Producto
+    WHERE id_producto = NEW.id_producto;
+
+    IF NEW.cantidad > v_stock_actual THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Stock insuficiente para realizar la venta';
+    END IF;
+
+END$$
+
+DELIMITER ;
+
+/* ============================================================================
+   Trigger 2 - Descontar stock automáticamente al vender
+   Coder: Regina
+   ========================================================================= */
+
+   DELIMITER $$
+
+CREATE TRIGGER TR_DescontarStockVenta
+AFTER INSERT ON DetalleVenta
+FOR EACH ROW
+BEGIN
+
+    UPDATE Producto
+    SET stock = stock - NEW.cantidad
+    WHERE id_producto = NEW.id_producto;
+
+END$$
+
+DELIMITER ;
+
+/* ============================================================================
+   Trigger 3 - Reponer stock automáticamente al registrar compras
+   Coder: Regina
+   ========================================================================= */
+
+DELIMITER $$
+
+CREATE TRIGGER TR_AumentarStockCompra
+AFTER INSERT ON DetalleCompra
+FOR EACH ROW
+BEGIN
+
+    UPDATE Producto
+    SET stock = stock + NEW.cantidad
+    WHERE id_producto = NEW.id_producto;
+
+END$$
+
+DELIMITER ;

@@ -244,6 +244,7 @@ JOIN Rol r ON u.id_rol = r.id_rol
 WHERE r.rol = 'Vendedor'
 GROUP BY u.id_usuario, u.apellido, u.nombre
 HAVING ticket_promedio > 50000.00;
+-- HAVING ROUND(AVG(totales_ventas.total_ticket), 2) > 50000.00;?
 
 /* 19. Proveedores a los que se compró más de N veces
 Tipo: GROUP BY + HAVING
