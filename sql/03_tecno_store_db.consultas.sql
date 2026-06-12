@@ -28,15 +28,15 @@ SELECT id_usuario, apellido, nombre, id_rol, activo
 FROM Usuario
 WHERE id_rol = 3;
 
+
+-- Implementado dentro de VW_StockCritico
+
 /* 3. Productos con stock por debajo del mínimo
 Tipo: Básica
 Roles: Admin, Depositero
 Coder: Fernanda
 */
 
-SELECT id_producto, id_categoria, descripcion, marca, precio_venta, stock, activo
-FROM Producto
-WHERE stock < 5 AND activo = 1;
 
 /* 4. Listar todos los proveedores activos
 Tipo: Básica
@@ -131,28 +131,6 @@ Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
 */
-
-WITH VentasPorMes AS (
-SELECT
-DATE_FORMAT(v.fecha, '%Y-%m') AS mes,
-p.id_producto,
-p.descripcion,
-SUM(dv.cantidad) AS total_vendido
-FROM DetalleVenta dv
-JOIN Venta v ON dv.id_venta = v.id_venta
-JOIN Producto p ON dv.id_producto = p.id_producto
-GROUP BY DATE_FORMAT(v.fecha, '%Y-%m'), p.id_producto, p.descripcion
-),
-MaximoPorMes AS (
-SELECT mes, MAX(total_vendido) AS max_cantidad
-FROM VentasPorMes
-GROUP BY mes
-)
-SELECT vpm.mes, vpm.descripcion, vpm.total_vendido
-FROM VentasPorMes vpm
-JOIN MaximoPorMes mpm
-ON vpm.mes = mpm.mes
-AND vpm.total_vendido = mpm.max_cantidad;
 
 /* 14. Categoría más vendida
 Tipo: GROUP BY
