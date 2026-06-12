@@ -9,10 +9,13 @@ SELECT id_usuario, apellido, nombre, id_rol, activo
 FROM Usuario
 WHERE id_rol = 3;
 
+# MODIFICADO por Regina -> ahora llama a una vista
 # obtener_stock_critico
-SELECT id_producto, id_categoria, descripcion, marca, precio_venta, stock, activo
+/*SELECT id_producto, id_categoria, descripcion, marca, precio_venta, stock, activo
 FROM Producto
-WHERE stock < 5 AND activo = 1;
+WHERE stock < 5 AND activo = 1;*/
+SELECT * FROM VW_StockCritico;
+
 
 #obtener_proveedores_activos
 SELECT id_proveedor, razon_social, telefono
