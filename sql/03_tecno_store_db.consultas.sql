@@ -29,13 +29,15 @@ FROM Usuario
 WHERE id_rol = 3;
 
 
--- Implementado dentro de VW_StockCritico
-
 /* 3. Productos con stock por debajo del mínimo
 Tipo: Básica
 Roles: Admin, Depositero
 Coder: Fernanda
 */
+
+SELECT * FROM VW_StockCritico;
+
+-- Implementado dentro de VW_StockCritico
 
 
 /* 4. Listar todos los proveedores activos
@@ -108,6 +110,12 @@ Roles: Admin, Gerente
 Coder: Regina
 */
 
+SELECT
+    mes,
+    total_vendido
+FROM VW_RendimientosMensuales
+ORDER BY mes ASC;
+
 -- Implementado dentro de VW_RendimientosMensuales
 
 /* 11. Costos del mes (mercadería comprada)
@@ -116,6 +124,12 @@ Roles: Admin, Gerente
 Coder: Regina
 */
 
+SELECT
+    mes,
+    total_costos
+FROM VW_RendimientosMensuales
+ORDER BY mes ASC;
+
 -- Implementado dentro de VW_RendimientosMensuales
 
 /* 12. Ganancia estimada (ventas - costos)
@@ -123,6 +137,12 @@ Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
 */
+
+SELECT
+    mes,
+    ganancia_estimada
+FROM VW_RendimientosMensuales
+ORDER BY mes ASC;
 
 -- Implementado dentro de VW_RendimientosMensuales
 
