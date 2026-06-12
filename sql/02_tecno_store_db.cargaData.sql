@@ -46,6 +46,13 @@ INSERT INTO Usuario (apellido, nombre, clave, id_rol, activo) VALUES
 ('Medina', 'Carlos', 'carlos_med', 3, 1),
 ('Rodríguez', 'Marina', 'marina_low', 3, 1);
 
+-– INSERTS EXTRA PARA NO SUFRIR
+INSERT INTO Usuario (apellido, nombre, clave, id_rol, activo) VALUES 
+('Admin', 'El', 'admin123', 1, 1), 
+('Gerente', 'El', 'gerente123', 2, 1), 
+('Vendedor', 'El', 'vendedor123', 3, 1), 
+
+
 -- =============================================================================
 -- 3. TABLA: PROVEEDOR 
 -- =============================================================================
