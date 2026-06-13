@@ -74,7 +74,7 @@ SELECT * FROM VW_RendimientosMensuales;
 -- ------------------------------
 */
 
-
+    
 
 -- 13. Producto más vendido por mes (GROUP BY) - Vista Común Expresión (CTE).
 -- Roles: admin, gerente
