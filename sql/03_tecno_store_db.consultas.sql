@@ -68,22 +68,44 @@ CONSULTAS JOIN
 Tipo: JOIN
 Roles: Admin, Gerente
 Coder: Cristian
-PENDIENTE DE ENTREGA
 */
+
+SELECT 
+    v.id_venta AS 'Factura',
+    v.fecha AS 'Fecha Venta',
+    u.nombre AS 'Nombre Vendedor',
+    u.apellido AS 'Apellido Vendedor'
+FROM Venta v
+INNER JOIN Usuario u ON v.id_usuario = u.id_usuario;
 
 /* 7. Detalle de venta con descripción y precio de cada producto
 Tipo: JOIN
 Roles: Admin, Vendedor
 Coder: Cristian
-PENDIENTE DE ENTREGA
 */
+
+SELECT 
+    dv.id_venta AS 'Nro Venta',
+    p.descripcion AS 'Producto',
+    p.marca AS 'Marca',
+    dv.cantidad AS 'Cantidad',
+    dv.precio_unitario AS 'Precio Unitario',
+    (dv.cantidad * dv.precio_unitario) AS 'Subtotal'
+FROM DetalleVenta dv
+INNER JOIN Producto p ON dv.id_producto = p.id_producto;
 
 /* 8. Compras con nombre del proveedor
 Tipo: JOIN
 Roles: Admin, Depositero
 Coder: Cristian
-PENDIENTE DE ENTREGA
 */
+
+SELECT 
+    c.id_compra AS 'Código Compra',
+    c.fecha AS 'Fecha Compra',
+    prov.razon_social AS 'Proveedor'
+FROM Compra c
+INNER JOIN Proveedor prov ON c.id_proveedor = prov.id_proveedor;
 
 /* 9. Productos que nunca fueron comprados a ningún proveedor
 Tipo: LEFT JOIN + NULL
@@ -178,8 +200,18 @@ JOIN MaximoPorMes mpm ON vpm.mes = mpm.mes AND vpm.total_vendido = mpm.max_canti
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Cristian
-PENDIENTE DE ENTREGA
 */
+
+SELECT 
+    c.id_categoria, 
+    c.categoria AS 'Categoría', 
+    SUM(dv.cantidad) AS 'Total Unidades Vendidas'
+FROM DetalleVenta dv
+INNER JOIN Producto p ON dv.id_producto = p.id_producto
+INNER JOIN Categoria c ON p.id_categoria = c.id_categoria
+GROUP BY c.id_categoria, c.categoria
+ORDER BY SUM(dv.cantidad) DESC
+LIMIT 1;
 
 /* 15. Cantidad de ventas por mes
 Tipo: GROUP BY
@@ -299,8 +331,19 @@ WHERE fp.forma_pago = 'Tarjeta de Crédito'
 Tipo: Subconsulta EXISTS
 Roles: Admin, Gerente
 Coder: Cristian
-PENDIENTE DE ENTREGA
 */
+
+SELECT 
+    u.id_usuario,
+    u.nombre,
+    u.apellido,
+    u.id_rol
+FROM Usuario u
+WHERE EXISTS (
+    SELECT 1 
+    FROM Venta v 
+    WHERE v.id_usuario = u.id_usuario
+);
 
 /* 23. Productos cuyo precio supera el promedio de su categoría
 Tipo: Subconsulta correlacionada
