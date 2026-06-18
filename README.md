@@ -113,7 +113,11 @@ El sistema implementa una arquitectura por capas:
 tecno_store/
 │
 ├── main.py
-├── config.py
+├── setup.bat
+├── ejecutar.bat
+├── requirements.txt
+├── readme.txt
+├── README.md
 │
 ├── db/
 │   ├── connection.py
