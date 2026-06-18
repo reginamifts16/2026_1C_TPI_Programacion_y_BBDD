@@ -113,7 +113,11 @@ El sistema implementa una arquitectura por capas:
 tecno_store/
 │
 ├── main.py
-├── config.py
+├── setup.bat
+├── ejecutar.bat
+├── requirements.txt
+├── readme.txt
+├── README.md
 │
 ├── db/
 │   ├── connection.py
@@ -125,6 +129,14 @@ tecno_store/
 │   ├── ventas.py
 │   ├── compras.py
 │   └── reportes.py
+│
+├── sql/
+│   ├── 01_tecno_store_db.estructura.sql
+│   ├── 02_tecno_store_db.cargaData.sql
+│   ├── 03_tecno_store_db.consultas.sql
+│   ├── 04_tecno_store_db.vistas.sql
+│   ├── 05_techno_store_db.procedimientos.sql
+│   └── 06_techno_store_db.triggers.sql
 │
 ├── views/
 │   ├── login_view.py
