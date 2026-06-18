@@ -9,6 +9,7 @@ cálculo de totales, desglose de detalles y afectación directa al stock.
 CODER ZERO: Regina
 ===============================================================================
 """
+from db.connection import conectar_bd
 
 def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
     """
