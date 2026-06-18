@@ -7,19 +7,13 @@ DESCRIPCIÓN:
 Módulo centralizado de conexión y gestión de la base de datos relacional.
 Abstrae la configuración del motor de base de datos y provee el punto de 
 acceso unificado para el ciclo de vida de las conexiones en la aplicación.
-CODER: Regina (& Cris coding adder)
+CODER: Regina
 ===============================================================================
 """
-# Verificamos que exista la librería de MySQL o lo instalamos automáticamente
+# correr en consola "python -m pip install mysql-connector-python"
 import os
-try:
-    import mysql.connector
-    from mysql.connector import Error
-except ModuleNotFoundError:
-    print("Librería MySQL no encontrada. Instalando...")
-    os.system("python -m pip install mysql-connector-python")
-    import mysql.connector
-    from mysql.connector import Error  
+import mysql.connector
+from mysql.connector import Error 
 
 def conectar_bd():
     """
