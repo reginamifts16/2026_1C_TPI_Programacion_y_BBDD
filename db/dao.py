@@ -150,3 +150,5 @@ def listar_proveedores_activos():
     conexion.close()
     
     return proveedores
+
+
