@@ -75,4 +75,3 @@ echo.
 call ejecutar.bat
 
 :Fin
-pause
