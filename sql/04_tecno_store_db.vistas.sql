@@ -1,3 +1,4 @@
+-- /sql/04_tecno_store_db.vistas.sql
 /* ============================================================================
    VW_StockCritico
    3. Productos activos con stock menor a 5 unidades

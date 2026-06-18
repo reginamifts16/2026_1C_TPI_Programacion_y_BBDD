@@ -1,6 +1,7 @@
 /* 
 =======================================================================
 CREACIÓN DE BASE DE DATOS Y TABLAS - TECNO STORE
+/sql/01_tecno_store_db.estructura.sql
 =======================================================================
 */
 -- 1. Crear y usar la Base de Datos

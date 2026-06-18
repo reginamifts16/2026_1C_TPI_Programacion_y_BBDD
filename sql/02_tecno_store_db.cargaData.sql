@@ -1,4 +1,5 @@
-SET FOREIGN_KEY_CHECKS = 0;
+-- /sql/02_tecno_store_db.cargaData.sql
+/*SET FOREIGN_KEY_CHECKS = 0;
 TRUNCATE TABLE DetalleVenta;
 TRUNCATE TABLE Venta;
 TRUNCATE TABLE DetalleCompra;
@@ -9,7 +10,7 @@ TRUNCATE TABLE Usuario;
 TRUNCATE TABLE FormaPago;
 TRUNCATE TABLE Categoria;
 TRUNCATE TABLE Rol;
-SET FOREIGN_KEY_CHECKS = 1;
+SET FOREIGN_KEY_CHECKS = 1;*/
 
 -- =============================================================================
 -- 1. TABLAS MAESTRAS (INSERCIÓN CON ID FIJO)

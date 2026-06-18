@@ -1,3 +1,4 @@
+-- /sql/05_tecno_store_db.procedimientos.sql
 /* ============================================================================
    Procedimiento 1: PA_RegistrarVenta
    Coder: Regina

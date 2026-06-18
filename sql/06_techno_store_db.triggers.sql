@@ -1,3 +1,4 @@
+-- /sql/06_tecno_store_db.triggers.sql
 /* ============================================================================
    Trigger 1 - Evitar vender más stock del disponible   
    Coder: Regina
