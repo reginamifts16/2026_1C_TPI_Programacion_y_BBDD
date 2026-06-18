@@ -60,7 +60,7 @@ if not exist env (
 call env\Scripts\activate.bat
 
 echo.
-choice /M "Desea instalar las dependencias"
+choice /M "¿Desea instalar las dependencias?"
 
 if errorlevel 2 goto Fin
 
@@ -69,7 +69,10 @@ pip install -r requirements.txt
 echo.
 echo.
 echo Instalacion finalizada correctamente.
+echo Iniciando la aplicacion...
 echo.
+
+call ejecutar.bat
 
 :Fin
 pause
