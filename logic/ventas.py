@@ -72,3 +72,21 @@ def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
         conexion.close()
 
     return exito
+
+def calcular_subtotal_memoria(carrito):
+    """
+    PROPÓSITO: Recorre la lista temporal del carrito y calcula el monto total a cobrar 
+               multiplicando cantidades por precios unitarios.
+
+    CODER: Regina.
+
+    PARÁMETROS:  
+        :carrito: (list) Lista de diccionarios de la transacción actual.
+
+    RETORNO: 
+        :total: (float) La sumatoria de todos los subtotales de los ítems.
+    """
+    total = 0.0
+    for item in carrito:
+        total += float(item['cantidad']) * float(item['precio_unitario'])
+    return total

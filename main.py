@@ -37,9 +37,17 @@ Toda la navegación comienza en LoginView.
 """
 
 from views.login_view import mostrar_login
+from db.init_db import inicializar_entorno_bd
 
 
 def main():
+    print("Iniciando Tecno Store...")
+
+    # prepara el entorno
+    exito_bd = inicializar_entorno_bd()
+    if not exito_bd:
+        print("El sistema no puede arrancar sin la Base de Datos.")
+        return 
 
     mostrar_login()
 

@@ -77,10 +77,10 @@ def insertar_usuario(datos):
     
     try:
         cursor.execute(query, (
-            datos['apellido'], 
-            datos['nombre'], 
-            datos['clave'], 
-            datos['id_rol']
+            datos[0], 
+            datos[1], 
+            datos[2], 
+            datos[3]
         ))
         conexion.commit()
         exito = True
@@ -152,3 +152,37 @@ def listar_proveedores_activos():
     return proveedores
 
 
+def buscar_productos_por_nombre(termino):
+    """
+    PROPÓSITO: Busca productos activos en el catálogo cuyo nombre o marca coincidan 
+               parcialmente con el término de búsqueda ingresado.
+
+    CODER: Regina.
+
+    PARÁMETROS:  
+        :termino: (str) Palabra o fragmento a buscar.
+
+    RETORNO: 
+        :resultados: (list) Lista de diccionarios con los productos encontrados.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion:
+        return []
+        
+    cursor = conexion.cursor(dictionary=True)
+    # Usamos LIKE con comodines % para buscar coincidencias parciales
+    query = """
+        SELECT id_producto, descripcion, marca, precio_venta, stock 
+        FROM Producto 
+        WHERE activo = 1 AND (descripcion LIKE %s OR marca LIKE %s)
+    """
+    valor_busqueda = f"%{termino}%"
+    cursor.execute(query, (valor_busqueda, valor_busqueda))
+    
+    resultados = cursor.fetchall()
+    
+    cursor.close()
+    conexion.close()
+    
+    return resultados
