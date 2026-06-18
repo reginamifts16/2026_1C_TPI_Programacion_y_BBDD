@@ -5,7 +5,7 @@ CREACIÓN DE BASE DE DATOS Y TABLAS - TECNO STORE
 */
 -- 1. Crear y usar la Base de Datos
 CREATE DATABASE IF NOT EXISTS tecno_store_db; 
-USE tecno_store_db; 
+-- USE tecno_store_db; 
 
 -- 2. Eliminar tablas previas en orden inverso para evitar conflictos de FK
 -- 1. Primero las tablas intermedias (dependen de ventas, compras y productos)
