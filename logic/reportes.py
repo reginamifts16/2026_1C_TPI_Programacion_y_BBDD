@@ -10,7 +10,7 @@ CODER ZERO: Regina
 ===============================================================================
 """
 
-from db.dao import obtener_rendimiento_vendedores, obtener_ranking_productos,obtener_ventas_agrupadas_por_usuario, obtener_rendimientos_mensuales
+from db.dao import obtener_rendimiento_vendedores, obtener_ranking_productos,obtener_ventas_agrupadas_por_usuario, obtener_rendimientos_mensuales, obtener_ventas_por_forma_pago
 
 
 def procesar_rendimiento_vendedores():
@@ -65,3 +65,13 @@ def procesar_rendimientos_mensuales():
             'ganancia': d['ganancia_estimada']    
         })
     return datos_mapeados
+
+
+
+def procesar_ventas_por_forma_pago():
+    """
+    PROPÓSITO: Puente lógico para el reporte de ventas por forma de pago.
+    CODER: Regina
+    """
+    datos = obtener_ventas_por_forma_pago()
+    return datos if datos else []

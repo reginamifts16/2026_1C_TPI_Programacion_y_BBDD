@@ -576,3 +576,34 @@ def obtener_ranking_productos(limite=10):
         conexion.close()
 
 
+
+def obtener_ventas_por_forma_pago():
+    """
+    Agrupa y suma los ingresos según forma de pago 
+    """   
+    conexion = conectar_bd()
+    if not conexion: 
+        return []
+        
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        # Usé LEFT JOIN desde FormaPago para incluir métodos con 0 ventas
+        query = """
+            SELECT 
+                fp.forma_pago,
+                COUNT(DISTINCT v.id_venta) AS cantidad_ventas,
+                IFNULL(SUM(dv.cantidad * dv.precio_unitario), 0) AS total_ingresos
+            FROM FormaPago fp
+            LEFT JOIN Venta v ON fp.id_forma_pago = v.id_forma_pago
+            LEFT JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+            GROUP BY fp.id_forma_pago, fp.forma_pago
+            ORDER BY total_ingresos DESC;
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al obtener ventas por forma de pago: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()

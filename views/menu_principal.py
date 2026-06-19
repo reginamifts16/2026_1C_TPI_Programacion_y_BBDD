@@ -46,8 +46,8 @@ MENU_ROLES = {
             ("Catálogo Inactivo", mostrar_productos_inactivos)
         ],
         "Compras": [
-            ("Registrar compra", mostrar_registrar_compra),
-            ("Proveedores", mostrar_proveedores)
+            ("Registrar compra", mostrar_registrar_compra)#,
+            #("Proveedores", mostrar_proveedores)
         ],
         "Reportes": [
             ("Rendimientos mensuales", mostrar_rendimientos),
@@ -55,8 +55,8 @@ MENU_ROLES = {
             ("Rendimiento por vendedor", mostrar_rendimiento_vendedor)
         ],
         "Administración": [
-            ("Gestión de usuarios", mostrar_usuarios),
-            ("Auditoría SQL Avanzada", mostrar_consultas_avanzadas) 
+            ("Gestión de usuarios", mostrar_usuarios)#,  NO WAY. No llegamos
+            #("Auditoría SQL Avanzada", mostrar_consultas_avanzadas) 
         ]
     },
 
@@ -66,10 +66,10 @@ MENU_ROLES = {
             ("Ranking de productos", mostrar_ranking_productos),
             ("Rendimiento por vendedor", mostrar_rendimiento_vendedor),
             ("Ventas por forma de pago", mostrar_formas_pago)
-        ],
-        "Consultas": [
-            ("Consultas del Sistema", mostrar_consultas_avanzadas)
-        ]
+        ]#,
+        #"Consultas": [
+        #    ("Consultas del Sistema", mostrar_consultas_avanzadas)
+        #]
     },
 
     "vendedor": {
@@ -77,8 +77,8 @@ MENU_ROLES = {
             ("Nueva venta", mostrar_nueva_venta)            
         ],
         "Inventario": [
-            ("Consultar stock", mostrar_consulta_stock),
-            ("Consultas permitidas", mostrar_consultas_avanzadas)
+            ("Consultar stock", mostrar_consulta_stock)#,
+            #("Consultas permitidas", mostrar_consultas_avanzadas)
         ],
         "Reportes": [
             ("Mis ventas por mes", mostrar_mis_ventas) #necesito pasar un parámetro y no quiero usar lambdas
@@ -92,12 +92,12 @@ MENU_ROLES = {
             ("Catálogo Inactivo", mostrar_productos_inactivos)
         ],
         "Compras": [
-            ("Registrar compra", mostrar_registrar_compra),
-            ("Proveedores", mostrar_proveedores)
-        ],
-        "Consultas": [
-            ("Consultas de Depósito", mostrar_consultas_avanzadas)
-        ]
+            ("Registrar compra", mostrar_registrar_compra)#,
+            #("Proveedores", mostrar_proveedores)
+        ]#,
+        #"Consultas": [
+        #    ("Consultas de Depósito", mostrar_consultas_avanzadas)
+        #]
     }
 }
 

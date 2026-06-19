@@ -15,7 +15,7 @@ from tkinter import ttk
 
 from views.components import limpiar_frame, crear_titulo, crear_subtitulo, COLOR_FONDO
 from utils.helpers import formatear_moneda
-from logic.reportes import  procesar_rendimiento_vendedores, procesar_ranking_productos, procesar_mis_ventas, procesar_rendimientos_mensuales
+from logic.reportes import  procesar_rendimiento_vendedores, procesar_ranking_productos, procesar_mis_ventas, procesar_rendimientos_mensuales, procesar_ventas_por_forma_pago
 
 # =============================================================================
 # RENDIMIENTO POR VENDEDOR (GERENCIA)
@@ -137,14 +137,40 @@ def mostrar_ranking_productos(frame):
             formatear_moneda(fila['ingresos_generados'])
         ))
 
+
 # =============================================================================
-# VENTAS POR FORMA DE PAGO (PLACEHOLDER)
+# VENTAS POR FORMA DE PAGO
 # =============================================================================
 def mostrar_formas_pago(frame):
     """
-    Pantalla temporal para evitar que el menú principal falle.
-    Se implementará en futuras versiones.
+    PROPÓSITO: ventas agrupadas por forma de pago.
+    CODER: Regina
     """
     limpiar_frame(frame)
     crear_titulo(frame, "Ventas por Forma de Pago")
-    crear_subtitulo(frame, "Análisis de ventas según el medio de pago utilizado (en desarrollo).")
+    crear_subtitulo(frame, "Análisis de ingresos y cantidad de transacciones según el medio de pago.")
+
+    # Contenedor para la tabla
+    panel = tk.LabelFrame(frame, text=" Resultados Analíticos ", bg=COLOR_FONDO)
+    panel.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+    # Definir columnas de la grilla
+    columnas = ("Forma de Pago", "Cantidad de Ventas", "Total Ingresos")
+    tree = ttk.Treeview(panel, columns=columnas, show="headings", height=10)
+
+    # Configurar cabeceras y centrado
+    for col in columnas:
+        tree.heading(col, text=col)
+        tree.column(col, anchor=tk.CENTER, width=150)
+    tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    # Obtener datos de la capa lógica (¡sin by-passing!)
+    datos = procesar_ventas_por_forma_pago()
+
+    # Llenar la tabla iterando los diccionarios
+    for d in datos:
+        tree.insert("", tk.END, values=(
+            d['forma_pago'],
+            d['cantidad_ventas'],
+            formatear_moneda(d['total_ingresos'])
+        ))
