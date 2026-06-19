@@ -17,7 +17,7 @@ def inicializar_entorno_bd():
     RETORNO: (bool) True si todo se inicializó bien, False si hubo error crítico.
     """
     try:
-        # Nos conectamos al motor MySQL, SIN especificar la database aún
+        # conecta al motor MySQL, SIN especificar la database 
         conexion = mysql.connector.connect(
             host="127.0.0.1",
             user="root",
@@ -30,8 +30,11 @@ def inicializar_entorno_bd():
         cursor.execute("CREATE DATABASE IF NOT EXISTS tecno_store_db;")
         cursor.execute("USE tecno_store_db;")
 
-        # Compilar el Procedimiento de Venta (¡Sin DELIMITER!)
-        # Primero lo borramos por si hicimos algún cambio en el código y queremos que se actualice
+        # =====================================================================
+        # PROCEDIMIENTOS ALMACENADOS
+        # =====================================================================
+        
+        # PA_RegistrarVenta
         cursor.execute("DROP PROCEDURE IF EXISTS PA_RegistrarVenta;")
         
         query_proc_venta = """
@@ -46,16 +49,128 @@ def inicializar_entorno_bd():
         """
         cursor.execute(query_proc_venta)
 
-        # Agregar la creación de los Triggers con la misma lógica:
-        # cursor.execute("DROP TRIGGER IF EXISTS TR_DescontarStockVenta;")
-        # cursor.execute("CREATE TRIGGER ...")
+
+        # PA_BajaLogicaProducto
+        cursor.execute("DROP PROCEDURE IF EXISTS PA_BajaLogicaProducto;")
+        cursor.execute("""
+            CREATE PROCEDURE PA_BajaLogicaProducto(
+                IN p_id_producto INT
+            )
+            BEGIN
+                UPDATE Producto
+                SET activo = 0
+                WHERE id_producto = p_id_producto;
+            END
+        """)
+
+        # =====================================================================
+        # TRIGGERS
+        # =====================================================================
+
+        # TR_ControlStockInsuficiente
+        cursor.execute("DROP TRIGGER IF EXISTS TR_ControlStockInsuficiente;")
+        cursor.execute("""
+            CREATE TRIGGER TR_ControlStockInsuficiente
+            BEFORE INSERT ON DetalleVenta
+            FOR EACH ROW
+            BEGIN
+                DECLARE v_stock_actual INT;
+
+                SELECT stock INTO v_stock_actual
+                FROM Producto
+                WHERE id_producto = NEW.id_producto;
+
+                IF NEW.cantidad > v_stock_actual THEN
+                    SIGNAL SQLSTATE '45000'
+                    SET MESSAGE_TEXT = 'Stock insuficiente para realizar la venta';
+                END IF;
+            END
+        """)
+
+
+        # TR_DescontarStockVenta
+        cursor.execute("DROP TRIGGER IF EXISTS TR_DescontarStockVenta;")
+        
+        query_trigger_stock = """
+        CREATE TRIGGER TR_DescontarStockVenta
+        AFTER INSERT ON DetalleVenta
+        FOR EACH ROW
+        BEGIN
+            UPDATE Producto
+            SET stock = stock - NEW.cantidad
+            WHERE id_producto = NEW.id_producto;
+        END
+        """
+        cursor.execute(query_trigger_stock)
+
+
+        # TR_AumentarStockCompra
+        cursor.execute("DROP TRIGGER IF EXISTS TR_AumentarStockCompra;")
+        cursor.execute("""
+            CREATE TRIGGER TR_AumentarStockCompra
+            AFTER INSERT ON DetalleCompra
+            FOR EACH ROW
+            BEGIN
+                UPDATE Producto
+                SET stock = stock + NEW.cantidad
+                WHERE id_producto = NEW.id_producto;
+            END
+        """)
+
+        # =====================================================================
+        # VISTAS (VIEWS)
+        # =====================================================================
+
+        # VW_StockCritico
+        cursor.execute("""
+            CREATE OR REPLACE VIEW VW_StockCritico AS
+            SELECT 
+                id_producto,
+                id_categoria,
+                descripcion,
+                marca,
+                precio_venta,
+                stock,
+                activo
+            FROM Producto
+            WHERE stock < 5 AND activo = 1;
+        """)
+
+        # VW_RendimientosMensuales
+        cursor.execute("""
+            CREATE OR REPLACE VIEW VW_RendimientosMensuales AS
+            WITH TotalVentas AS (
+                SELECT 
+                    DATE_FORMAT(v.fecha, '%Y-%m') AS mes,
+                    SUM(dv.cantidad * dv.precio_unitario) AS total_vendido
+                FROM Venta v
+                JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+                GROUP BY DATE_FORMAT(v.fecha, '%Y-%m')
+            ),
+            TotalCostos AS (
+                SELECT 
+                    DATE_FORMAT(c.fecha, '%Y-%m') AS mes,
+                    SUM(dc.cantidad * dc.precio_costo) AS total_costos
+                FROM Compra c
+                JOIN DetalleCompra dc ON c.id_compra = dc.id_compra
+                GROUP BY DATE_FORMAT(c.fecha, '%Y-%m')
+            )
+            SELECT 
+                v.mes,
+                ROUND(v.total_vendido, 2) AS total_vendido,
+                ROUND(IFNULL(c.total_costos, 0.00), 2) AS total_costos,
+                ROUND(v.total_vendido - IFNULL(c.total_costos, 0.00), 2) AS ganancia_estimada
+            FROM TotalVentas v
+            LEFT JOIN TotalCostos c ON v.mes = c.mes
+            ORDER BY v.mes ASC;
+        """)
 
         conexion.commit()
-        print("✓ Entorno de Base de Datos inicializado correctamente.")
+        print("Entorno de Base de Datos inicializado correctamente.")
         return True
 
     except Exception as e:
-        print(f"❌ Error crítico inicializando la BD: {e}")
+        print(f"Error crítico inicializando la BD: {e}")
         return False
         
     finally:
