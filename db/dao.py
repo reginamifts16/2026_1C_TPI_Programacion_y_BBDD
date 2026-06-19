@@ -446,3 +446,27 @@ def obtener_categorias():
     finally:
         cursor.close()
         conexion.close()
+
+
+# =============================================================================
+# MUESTRA RENDIMIENTOS POR MES
+# =============================================================================
+def obtener_rendimientos_mensuales():
+    """
+    PROPÓSITO: Consume la vista VW_RendimientosMensuales.
+    JUSTIFICACIÓN TÉCNICA: La lógica de cálculo (ventas - costos) está encapsulada en la base.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: return []
+    
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM VW_RendimientosMensuales ORDER BY mes DESC")
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al leer vista de rendimientos: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()

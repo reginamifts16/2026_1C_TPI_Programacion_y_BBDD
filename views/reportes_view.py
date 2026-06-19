@@ -14,19 +14,20 @@ CODER: Regina
 """
 
 from views.components import *
+from db.dao import obtener_rendimientos_mensuales
 
 
 # =============================================================================
 # RENDIMIENTOS MENSUALES
 # =============================================================================
 
-def mostrar_rendimientos(frame):
+'''def mostrar_rendimientos(frame):
 
     crear_pantalla_base(
         frame,
         "Rendimientos Mensuales",
         "Resumen de ventas, costos, ganancias y ticket promedio."
-    )
+    )'''
 
 
 # =============================================================================
@@ -66,3 +67,31 @@ def mostrar_formas_pago(frame):
         "Ventas por Forma de Pago",
         "Análisis de ventas según el medio de pago utilizado."
     )
+
+
+# =============================================================================
+# RENDIMIENTOS MENSUALES
+# =============================================================================
+def mostrar_rendimientos(frame):
+    limpiar_frame(frame)
+    crear_titulo(frame, "Estado de Resultados Mensual")
+    
+    panel = tk.LabelFrame(frame, text=" Indicadores Financieros ", bg=COLOR_FONDO)
+    panel.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+    columnas = ("Mes", "Ventas", "Costos", "Ganancia")
+    tree = ttk.Treeview(panel, columns=columnas, show="headings")
+    
+    for col in columnas:
+        tree.heading(col, text=col)
+        tree.column(col, width=100)
+    tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    datos = obtener_rendimientos_mensuales()
+    for d in datos:
+        tree.insert("", tk.END, values=(
+            d['mes'], 
+            f"${d['total_vendido']:,.2f}", 
+            f"${d['total_costos']:,.2f}", 
+            f"${d['ganancia_estimada']:,.2f}"
+        ))

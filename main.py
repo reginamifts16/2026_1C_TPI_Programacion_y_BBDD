@@ -2,9 +2,9 @@
 ===============================================================================
 PROYECTO IFTS16: Tecno Store - Sistema de Gestión y Punto de Venta
 AUTORES:
-    - Duszynski, Cristian    | Rol: Infraestructura, Backend y Git
-    - Jurado, María Fernanda | Rol: Frontend (Tkinter) y Validaciones
-    - Molares, Regina Noemí  | Rol: Arquitectura, DBA, Gobernanza IA, Liderazgo
+    - Duszynski, Cristian    | Rol: Infraestructura, SQL, QA, Testing y Documentación
+    - Jurado, María Fernanda | Rol: Frontend (Tkinter), SQL, QA, Testing y Documentación
+    - Molares, Regina Noemí  | Rol: Arquitectura, DBA, Backend Core, Git, Gobernanza IA
     - Moyano, Jennifer       | Rol: QA, Testing y Documentación
 FECHA:    Junio 2026
 VERSIÓN:  1.0
