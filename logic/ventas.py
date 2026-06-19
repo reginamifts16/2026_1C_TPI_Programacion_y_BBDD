@@ -118,16 +118,16 @@ def anular_venta_transaccion(id_venta):
     try:
         conexion.start_transaction()
 
-        # 1. Verificar si la venta realmente existe
+        # Verificar si la venta existe
         cursor.execute("SELECT id_venta FROM Venta WHERE id_venta = %s", (id_venta,))
         if not cursor.fetchone():
             return False, "La factura especificada no existe en los registros."
 
-        # 2. RECUPERAR las cantidades ANTES de borrar el detalle
+        # RECUPERAR las cantidades ANTES de borrar el detalle
         cursor.execute("SELECT id_producto, cantidad FROM DetalleVenta WHERE id_venta = %s", (id_venta,))
         productos_a_restaurar = cursor.fetchall()
 
-        # 3. RESTAURAR EL STOCK (Bucle seguro que usa la Primary Key id_producto)
+        # RESTAURAR EL STOCK 
         for item in productos_a_restaurar:
             cursor.execute("""
                 UPDATE Producto 
@@ -135,19 +135,18 @@ def anular_venta_transaccion(id_venta):
                 WHERE id_producto = %s
             """, (item['cantidad'], item['id_producto']))
 
-        # 4. Eliminar los Detalles (Hijos)
+        # Eliminar los Hijos
         cursor.execute("DELETE FROM DetalleVenta WHERE id_venta = %s", (id_venta,))
 
-        # 5. Eliminar la Cabecera de la Venta (Padre)
+        # Eliminar la Cabecera de la Venta (Padre)
         cursor.execute("DELETE FROM Venta WHERE id_venta = %s", (id_venta,))
 
         # Confirmamos la operación
         conexion.commit()
-        return True, f"Factura #{id_venta} anulada exitosamente. El stock ha sido reintegrado."
+        return True, f"Factura #{id_venta} fue anulada. El stock ha sido reintegrado."
 
     except Exception as e:
-        conexion.rollback()
-        # IMPRESIÓN CLAVE: Dejamos registro en consola del error exacto de MySQL
+        conexion.rollback()        
         print(f"Error crítico en BD al anular: {e}")
         return False, f"La base de datos rechazó la operación: {e}"
         

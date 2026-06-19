@@ -58,9 +58,11 @@ CREATE TRIGGER TR_AumentarStockCompra
 AFTER INSERT ON DetalleCompra
 FOR EACH ROW
 BEGIN
-
+    -- Actualizamos stock, pisamos el costo viejo y recalculamos venta (+40% de margen)
     UPDATE Producto
-    SET stock = stock + NEW.cantidad
+    SET stock = stock + NEW.cantidad,
+        precio_compra = NEW.precio_costo,
+        precio_venta = NEW.precio_costo * 1.40
     WHERE id_producto = NEW.id_producto;
 
 END$$

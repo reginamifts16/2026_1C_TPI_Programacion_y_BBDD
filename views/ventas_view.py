@@ -363,13 +363,13 @@ def mostrar_anular_venta(frame):
         # Doble chequeo de gobernanza operativa
         respuesta = messagebox.askyesno(
             " ATENCIÓN - Confirmar Anulación de la Operación", 
-            f"¿Está totalmente segura de que desea eliminar la Factura #{factura_id}?\n\nEsta acción es irreversible: borrará los registros fiscales y devolverá los ítems inspeccionados al stock de Productos."
+            f"¿Está seguro de que desea eliminar la Factura #{factura_id}?\n\nEsta acción es irreversible: borrará los registros y devolverá los ítems al stock."
         )
         
         if not respuesta:
             return 
 
-        # Invocamos la transacción ACID 
+        # Invocamos la transacción  
         from logic.ventas import anular_venta_transaccion
         exito, mensaje = anular_venta_transaccion(int(factura_id))
 

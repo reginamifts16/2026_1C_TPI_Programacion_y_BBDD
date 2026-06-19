@@ -35,7 +35,7 @@ def obtener_usuario_por_username(username_ingresado):
     
     cursor = conn.cursor(dictionary=True)
     
-    # LOWER y REPLACE remueven mayúsculas y espacios para que el username sea limpio
+    # LOWER y REPLACE dejan el username limpio
     query = """
         SELECT u.nombre, u.apellido, u.clave, u.activo, r.rol,
                LOWER(REPLACE(CONCAT(u.nombre, u.apellido), ' ', '')) AS username
@@ -207,7 +207,7 @@ def obtener_venta_completa(id_venta):
         
     cursor = conexion.cursor(dictionary=True)
     
-    # Buscar la cabecera uniendo tablas para traer nombres legibles
+    # Buscar la cabecera uniendo tablas para traer nombres
     query_cabecera = """
         SELECT v.id_venta, v.fecha, concat(u.nombre, ' ', u.apellido) AS vendedor, fp.forma_pago AS forma_pago
         FROM Venta v
@@ -241,36 +241,43 @@ def obtener_venta_completa(id_venta):
 
 
 
-def registrar_compra_transaccion(id_proveedor, id_usuario, lista_productos):
+def registrar_compra_transaccion(id_proveedor, lista_productos):
     """
     PROPÓSITO: Registra una compra a proveedor. Inserta cabecera y detalles.
-               El trigger 'TR_AumentarStockCompra' actualiza el stock automáticamente.
+               El trigger de la BD actualiza el stock automáticamente.
+    CODER: Fernanda / Regina.
 
-    CODER: Fernanda.
-
-    PARÁMETROS:  
-        :id_proveedor: (int) ID del proveedor.
-        :id_usuario: (int) ID del usuario que registra la compra.
-        :lista_productos: (list) Lista de dicts [{'id_producto': x, 'cantidad': y, 'precio_costo': z}]
-
-    RETORNO: :bool: True si la transacción fue exitosa.
+    Lógica de compras para manejar los cambios de precios: 
+    Usamos el modelo de 'Costo de Reposición' onda negocios de retail. 
+    En lugar de complicar el código en Python creando lotes separados para cada precio, 
+    armamos un Trigger que al registrar una compra, automáticamente hace tres cosas: 
+    - suma el nuevo stock al existente, 
+    - actualiza el precio de costo del producto al valor de la factura más reciente, 
+    - recalcula el precio de venta al público (sumándole un 40% de margen). 
+    Así nos aseguramos de que el vendedor siempre facture con el precio actualizado. 
+    El historial exacto de cuánto pagamos en el pasado queda guardado en la tabla de detalles 
+    de compra (guarda la auditoría! XD)
     """
     from db.connection import conectar_bd
     conexion = conectar_bd()
-    if not conexion: return False
+    if not conexion: 
+        return False
     
     cursor = conexion.cursor()
     try:
         conexion.start_transaction()
         
-        # 1. Insertar Cabecera de Compra
-        cursor.execute("INSERT INTO Compra (id_proveedor, id_usuario, fecha) VALUES (%s, %s, NOW())", 
-                       (id_proveedor, id_usuario))
+        # 1. Insertar Cabecera de Compra (Solo Proveedor y Fecha, acorde al MER)
+        cursor.execute("INSERT INTO Compra (id_proveedor, fecha) VALUES (%s, NOW())", 
+                       (id_proveedor,))
         cursor.execute("SELECT LAST_INSERT_ID()")
         id_compra = cursor.fetchone()[0]
         
         # 2. Insertar Detalles
-        query_detalle = "INSERT INTO DetalleCompra (id_compra, id_producto, cantidad, precio_costo) VALUES (%s, %s, %s, %s)"
+        query_detalle = """
+            INSERT INTO DetalleCompra (id_compra, id_producto, cantidad, precio_costo) 
+            VALUES (%s, %s, %s, %s)
+        """
         for prod in lista_productos:
             cursor.execute(query_detalle, (id_compra, prod['id_producto'], prod['cantidad'], prod['precio_costo']))
             
@@ -278,7 +285,7 @@ def registrar_compra_transaccion(id_proveedor, id_usuario, lista_productos):
         return True
     except Exception as e:
         conexion.rollback()
-        print(f"Error en transacción de compra: {e}")
+        print(f"Error crítico en BD al registrar compra: {e}")
         return False
     finally:
         cursor.close()
