@@ -281,17 +281,40 @@ def mostrar_anular_venta(frame):
     entry_id_venta = tk.Entry(frame_busqueda, width=15)
     entry_id_venta.pack(side=tk.LEFT, padx=10)
 
+    # ---------------------------------------------------------
+    # FUNCIÓN ANIDADA (NO usamos POO - NO LA ROMPAN!!!)
+    # ---------------------------------------------------------
     def cmd_ejecutar_anulacion():
         factura_id = entry_id_venta.get().strip()
+        
         if not validar_entrada_numerica(factura_id):
-            messagebox.showerror("Error de entrada", "Debe ingresar un ID unívoco numérico válido.")
+            messagebox.showerror("Error de entrada", "Debe ingresar un ID numérico válido.")
             return
-        # Lógica de rollback o baja lógica futura aquí...
-        messagebox.showinfo("POS", f"Buscando Factura {factura_id} en los registros...")
 
+        # Gobernanza --> doble confimacion antes de borrar
+        respuesta = messagebox.askyesno(
+            "Confirmar Anulación", 
+            f"¿Está seguro que desea anular la Factura #{factura_id}?\n\nEsta acción eliminará el comprobante y restaurará el stock de forma permanente."
+        )
+        
+        if not respuesta:
+            return # El usuario cancela la operación
+
+        # Importa y llama a la capa lógica
+        from logic.ventas import anular_venta_transaccion
+        exito, mensaje = anular_venta_transaccion(int(factura_id))
+
+        if exito:
+            messagebox.showinfo("Anulación Exitosa", mensaje)
+            entry_id_venta.delete(0, tk.END) # Limpia el campito para otra consulta
+        else:
+            messagebox.showerror("Reversión Abortada", mensaje)
+    # ---------------------------------------------------------
+
+    # Fijate cómo el botón llama a la función anidada sin paréntesis
     tk.Button(
         frame_busqueda, 
-        text="Buscar e Iniciar Reversión", 
+        text="<< Buscar e Iniciar Reversión", 
         bg="#c0392b", 
         fg="white", 
         font=("Arial", 10, "bold"),
