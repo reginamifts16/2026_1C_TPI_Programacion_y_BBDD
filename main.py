@@ -1,7 +1,7 @@
 """
 ===============================================================================
 PROYECTO IFTS16: Tecno Store - Sistema de Gestión y Punto de Venta
-AUTORES:
+AUTORES:epe
     - Duszynski, Cristian    | Rol: Infraestructura, SQL, QA, Testing y Documentación
     - Jurado, María Fernanda | Rol: Frontend (Tkinter), SQL, QA, Testing y Documentación
     - Molares, Regina Noemí  | Rol: Arquitectura, DBA, Backend Core, Git, Gobernanza IA

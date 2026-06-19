@@ -124,16 +124,17 @@ def mostrar_login():
             return
 
         # Si loguea bien, armamos el diccionario con los datos
-        usuario_logueado = {
+        usuario = {
             "nombre": resultado["nombre"],
-            "rol": resultado["rol"]            
-        }        
+            "rol": resultado["rol"],
+            "username": resultado["username"] # Lo pasamos al menú
+        }       
         
         # Setea el rol en la vista de consultas y levanta el menú principal
         asignar_rol_logueado(resultado["rol"])
 
         ventana.destroy()
-        mostrar_menu_principal(usuario_logueado)
+        mostrar_menu_principal(usuario)
     
 
     frame_botones = tk.Frame(

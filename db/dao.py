@@ -469,3 +469,32 @@ def obtener_rendimientos_mensuales():
     finally:
         cursor.close()
         conexion.close()
+
+
+# =============================================================================
+# VENTAS POR VENDEDOR, AGRuPADAS POR MES
+# =============================================================================
+def obtener_ventas_agrupadas_por_usuario(nombre_completo):
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: return []
+    
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        query = """
+            SELECT 
+                DATE_FORMAT(v.fecha, '%m-%Y') AS mes_anio, 
+                COUNT(v.id_venta) AS cantidad_ventas,
+                SUM(dv.cantidad * dv.precio_unitario) AS total_mes
+            FROM Venta v
+            JOIN Usuario u ON v.id_usuario = u.id_usuario
+            JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+            WHERE CONCAT(u.nombre, ' ', u.apellido) = %s
+            GROUP BY mes_anio
+            ORDER BY v.fecha DESC
+        """
+        cursor.execute(query, (nombre_completo,))
+        return cursor.fetchall()
+    finally:
+        cursor.close()
+        conexion.close()

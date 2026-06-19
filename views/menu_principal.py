@@ -26,9 +26,12 @@ from views.reportes_view import *
 from views.usuarios_view import *
 from views.consultas_view import *
 
+
+
 # =============================================================================
 # QUÉ ROL TIENE ACCESO A QUÉ FUNCIONES
 # =============================================================================
+
 MENU_ROLES = {
 
     "administrador": {
@@ -71,12 +74,14 @@ MENU_ROLES = {
 
     "vendedor": {
         "Ventas": [
-            ("Nueva venta", mostrar_nueva_venta),
-            ("Mis ventas del día", mostrar_mis_ventas)
+            ("Nueva venta", mostrar_nueva_venta)            
         ],
         "Inventario": [
             ("Consultar stock", mostrar_consulta_stock),
             ("Consultas permitidas", mostrar_consultas_avanzadas)
+        ],
+        "Reportes": [
+            ("Mis ventas por mes", mostrar_mis_ventas) #necesito pasar un parámetro y no quiero usar lambdas
         ]
     },
 
@@ -123,11 +128,7 @@ def mostrar_dashboard(frame_contenido):
     )
 
 
-def mostrar_submenu(frame_submenu,
-                    frame_contenido,
-                    rol,
-                    menu):
-
+def mostrar_submenu(frame_submenu, frame_contenido, rol, menu, usuario):
     limpiar_frame(frame_submenu)
 
     titulo = tk.Label(
@@ -137,26 +138,25 @@ def mostrar_submenu(frame_submenu,
         fg=COLOR_TEXTO_OSCURO,
         font=("Arial", 11, "bold")
     )
-
-    titulo.pack(
-        pady=(10, 10)
-    )
+    titulo.pack(pady=(10, 10))
 
     opciones = MENU_ROLES[rol][menu]
 
     for texto, funcion in opciones:
-
-        crear_boton_submenu(
-            frame_submenu,
-            texto,
-            lambda f=funcion: f(frame_contenido)
-        )
+        # Si la función es mostrar_mis_ventas, le pasa el usuario logueado
+        if funcion == mostrar_mis_ventas:
+            crear_boton_submenu(frame_submenu, texto, lambda f=funcion: f(frame_contenido, usuario))
+        else:
+            # Si no, ejecuta la función sin parámetros extra
+            crear_boton_submenu(frame_submenu, texto, lambda f=funcion: f(frame_contenido))
 
 
 # =============================================================================
 # MUESTRA EL MENU DE OPCIONES PRINCIPAL 
 # =============================================================================
 def mostrar_menu_principal(usuario):
+
+    print(f"Sesión iniciada para: {usuario['nombre']}")
 
     ventana = tk.Tk()
 
@@ -278,7 +278,8 @@ def mostrar_menu_principal(usuario):
                 frame_submenu,
                 frame_contenido,
                 rol,
-                m
+                m,
+                usuario
             )
         )
 

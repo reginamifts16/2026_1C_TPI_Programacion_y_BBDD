@@ -400,35 +400,3 @@ def mostrar_anular_venta(frame):
     btn_anular.pack(fill=tk.X, padx=20, pady=15)
 
 
-# =============================================================================
-# MIS VENTAS DEL DÍA (A CONSIDERAR)
-# =============================================================================
-
-def mostrar_mis_ventas(frame):
-    """
-    PROPÓSITO: Pantalla de arqueo de caja individual para el vendedor en sesión. 
-               Muestra el listado filtrado de sus operaciones diarias.
-
-    CODER: Regina.
-
-    PARÁMETROS:  
-        :frame: (tk.Frame) El contenedor de interfaz provisto por el menú central.
-    """
-    limpiar_frame(frame)
-    frame.config(bg=COLOR_FONDO)
-    
-    crear_titulo(frame, "Mis Ventas del Día")
-    crear_subtitulo(frame, "Resumen diario personal para arqueo de caja y control de comisiones.")
-
-    # Grilla del Arqueo
-    columnas = ("Hora", "Comprobante ID", "Productos", "Monto")
-    tree_mis_ventas = ttk.Treeview(frame, columns=columnas, show="headings", height=10)
-    
-    for col in columnas:
-        tree_mis_ventas.heading(col, text=col)
-        tree_mis_ventas.column(col, width=140, anchor=tk.CENTER)
-        
-    tree_mis_ventas.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
-    
-    lbl_arqueo = tk.Label(frame, text="TOTAL ACUMULADO EN CAJA: $0.00", font=("Arial", 12, "bold"), bg=COLOR_FONDO, fg="#27ae60")
-    lbl_arqueo.pack(pady=10, anchor=tk.E, padx=20)

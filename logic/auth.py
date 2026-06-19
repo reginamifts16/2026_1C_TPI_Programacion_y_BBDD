@@ -52,5 +52,6 @@ def autenticar_usuario(username_ingresado, clave_ingresada):
     return {
         "success": True,
         "nombre": f"{usuario['nombre']} {usuario['apellido']}",
-        "rol": rol_final
+        "rol": rol_final,
+        "username": usuario['nombre'] + usuario['apellido'] # para uso interno (no sacar)
     }
