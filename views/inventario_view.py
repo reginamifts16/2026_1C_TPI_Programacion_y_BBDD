@@ -12,22 +12,24 @@ CODER: Regina
 from views.components import *
 import tkinter as tk
 from tkinter import *
-from db.dao import obtener_productos_stock_critico, obtener_productos_activos_ordenados 
-from logic.inventario import gestionar_baja_logica
+from db.dao import obtener_productos_stock_critico,obtener_productos_activos_ordenados, obtener_productos_inactivos, obtener_categorias 
+from logic.inventario import gestionar_baja_logica, gestionar_alta_producto
 
 # =============================================================================
 # GESTIÓN DE PRODUCTOS
 # =============================================================================
 
-def mostrar_productos(frame):
+'''def mostrar_productos(frame):
 
     crear_pantalla_base(
         frame,
         "Gestión de Productos",
         "Alta, modificación, baja lógica y consulta de productos."
-    )
+    )'''
 
-
+# =============================================================================
+# MOSTRAR PRODUCTOS CON STOCK BAJO
+# =============================================================================
 def mostrar_stock_critico(frame):
     """
     PROPÓSITO: Renderiza la pantalla para el perfil Depositero.
@@ -122,7 +124,9 @@ def mostrar_consulta_stock(frame):
     )
 
 
-
+# =============================================================================
+# MOSTRAR PRODUCTOS
+# =============================================================================
 def mostrar_productos(frame):
     """
     PROPÓSITO: Pantalla ABM para el catálogo de productos.
@@ -159,14 +163,36 @@ def mostrar_productos(frame):
     entry_venta = tk.Entry(panel_form, width=30)
     entry_venta.pack(padx=10, pady=2)
 
-    tk.Label(panel_form, text="ID Categoría:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
-    entry_cat = tk.Entry(panel_form, width=30)
-    entry_cat.pack(padx=10, pady=2)
+    tk.Label(panel_form, text="Categoría:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
+    
+    # Carga dinámica del desplegable
+    from db.dao import obtener_categorias
+    categorias_bd = obtener_categorias()
+    lista_cat = [f"{c['id_categoria']} - {c['categoria']}" for c in categorias_bd] if categorias_bd else ["0 - Sin categoría"]
+    
+    combo_cat = ttk.Combobox(panel_form, values=lista_cat, state="readonly", width=27)
+    combo_cat.pack(padx=10, pady=2)
+    if lista_cat:
+        combo_cat.current(0)
 
     # Funciones de los botones
     def cmd_guardar():
-        # TODO: Conectar a logic.inventario.gestionar_alta_producto
-        messagebox.showinfo("En desarrollo", "Función de Alta/Modificación en construcción.")
+        desc = entry_desc.get().strip()
+        marca = entry_marca.get().strip()
+        costo = entry_costo.get().strip()
+        venta = entry_venta.get().strip()
+        # Extrae solo el número antes del guión
+        seleccion_cat = combo_cat.get()
+        cat_id = seleccion_cat.split(" - ")[0] if " - " in seleccion_cat else "0"
+        
+        exito, msj = gestionar_alta_producto(desc, marca, costo, venta, cat_id)
+        
+        if exito:
+            messagebox.showinfo("Éxito", msj)
+            cmd_limpiar()
+            mostrar_productos(frame) # Recarga la grilla
+        else:
+            messagebox.showerror("Error", msj)
 
     def cmd_eliminar():
         seleccion = tree_prod.selection()
@@ -220,3 +246,45 @@ def mostrar_productos(frame):
     for p in productos_bd:
         tree_prod.insert("", tk.END, 
                          values=(p['id_producto'], p['descripcion'], p['marca'], f"${p['precio_compra']}", f"${p['precio_venta']}", p['stock']))
+        
+
+# =============================================================================
+#  MOSTRAR PRODUCTOS INACTIVOS
+# =============================================================================
+def mostrar_productos_inactivos(frame):
+    """
+    PROPÓSITO: Pantalla de productos retirados de circulación.
+    CODER: Regina
+    """
+    from db.dao import obtener_productos_inactivos
+    
+    limpiar_frame(frame)
+    frame.config(bg=COLOR_FONDO)
+    
+    crear_titulo(frame, "Auditoría de Catálogo Inactivo")
+    crear_subtitulo(frame, "Productos que fueron dados de baja y ya no están a la venta.")
+
+    panel_grilla = tk.LabelFrame(frame, text=" Historial de Productos Discontinuados ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_grilla.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
+
+    columnas = ("ID", "Desc", "Marca", "Último Costo", "Stock Remanente")
+    tree_inactivos = ttk.Treeview(panel_grilla, columns=columnas, show="headings", height=15)
+    
+    tree_inactivos.heading("ID", text="ID")
+    tree_inactivos.column("ID", width=40)
+    for col in columnas[1:]:
+        tree_inactivos.heading(col, text=col)
+        tree_inactivos.column(col, width=120)
+        
+    tree_inactivos.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    productos_bd = obtener_productos_inactivos()
+    
+    for p in productos_bd:
+        tree_inactivos.insert("", tk.END, values=(
+            p['id_producto'], 
+            p['descripcion'], 
+            p['marca'], 
+            f"${p['precio_compra']}", 
+            p['stock']
+        ))

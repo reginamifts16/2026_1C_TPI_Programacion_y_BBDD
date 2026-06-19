@@ -38,7 +38,7 @@ MENU_ROLES = {
         "Inventario": [
             ("Gestión de productos", mostrar_productos),
             ("Stock crítico", mostrar_stock_critico),
-            ("Categorías", mostrar_categorias)
+            ("Catálogo Inactivo", mostrar_productos_inactivos)
         ],
         "Compras": [
             ("Registrar compra", mostrar_registrar_compra),
@@ -82,7 +82,7 @@ MENU_ROLES = {
         "Inventario": [
             ("Gestión de productos", mostrar_productos),
             ("Stock crítico", mostrar_stock_critico),
-            ("Categorías", mostrar_categorias)
+            ("Catálogo Inactivo", mostrar_productos_inactivos)
         ],
         "Compras": [
             ("Registrar compra", mostrar_registrar_compra),

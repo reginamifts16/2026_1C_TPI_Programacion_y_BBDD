@@ -10,7 +10,7 @@ CODER ZERO: Regina
 ===============================================================================
 """
 
-from db.dao import dar_baja_logica_producto
+from db.dao import dar_baja_logica_producto, insertar_producto
 
 
 def gestionar_baja_logica(id_producto):
@@ -28,3 +28,21 @@ def gestionar_baja_logica(id_producto):
         return True, "Producto retirado de comercialización (Baja Lógica aplicada)."
     else:
         return False, "Fallo en la base de datos o el producto no existe."
+    
+
+def gestionar_alta_producto(desc, marca, costo_txt, venta_txt, cat_txt):
+    if not desc or not marca:
+        return False, "La descripción y la marca son obligatorias."
+    try:
+        costo = float(costo_txt)
+        venta = float(venta_txt)
+        id_cat = int(cat_txt)
+    except ValueError:
+        return False, "Los precios deben ser numéricos y la categoría un número entero."
+    if costo <= 0 or venta <= 0:
+        return False, "Los precios deben ser mayores a cero."
+    if venta <= costo:
+        return False, "El precio de venta debe superar al costo para generar rentabilidad."
+    
+    exito = insertar_producto(desc, marca, costo, venta, id_cat)
+    return (True, "Producto registrado. Stock inicial: 0.") if exito else (False, "Error en la base de datos.")

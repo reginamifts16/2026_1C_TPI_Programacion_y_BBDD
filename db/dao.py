@@ -350,3 +350,62 @@ def obtener_productos_activos_ordenados():
     finally:
         cursor.close()
         conexion.close()
+
+
+def obtener_productos_inactivos():
+    """
+    PROPÓSITO: Recupera el listado de productos retirados de la venta (activo = 0).
+    CODER: Fernanda
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: 
+        return []
+        
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM Producto WHERE activo = 0 ORDER BY descripcion")
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al buscar productos inactivos: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def insertar_producto(descripcion, marca, precio_compra, precio_venta, id_categoria):
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: return False
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO Producto (descripcion, marca, precio_compra, precio_venta, id_categoria, stock, activo) 
+            VALUES (%s, %s, %s, %s, %s, 0, 1)
+        """, (descripcion, marca, precio_compra, precio_venta, id_categoria))
+        conexion.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        conexion.rollback()
+        print(f"Error al insertar: {e}")
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+def obtener_categorias():
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: return []
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT id_categoria, categoria FROM Categoria ORDER BY categoria")
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al traer categorías: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()
