@@ -144,30 +144,19 @@ def inicializar_entorno_bd():
         # VW_RendimientosMensuales
         cursor.execute("""
             CREATE OR REPLACE VIEW VW_RendimientosMensuales AS
-            WITH TotalVentas AS (
-                SELECT 
-                    DATE_FORMAT(v.fecha, '%Y-%m') AS mes,
-                    SUM(dv.cantidad * dv.precio_unitario) AS total_vendido
-                FROM Venta v
-                JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
-                GROUP BY DATE_FORMAT(v.fecha, '%Y-%m')
-            ),
-            TotalCostos AS (
-                SELECT 
-                    DATE_FORMAT(c.fecha, '%Y-%m') AS mes,
-                    SUM(dc.cantidad * dc.precio_costo) AS total_costos
-                FROM Compra c
-                JOIN DetalleCompra dc ON c.id_compra = dc.id_compra
-                GROUP BY DATE_FORMAT(c.fecha, '%Y-%m')
-            )
             SELECT 
-                v.mes,
-                ROUND(v.total_vendido, 2) AS total_vendido,
-                ROUND(IFNULL(c.total_costos, 0.00), 2) AS total_costos,
-                ROUND(v.total_vendido - IFNULL(c.total_costos, 0.00), 2) AS ganancia_estimada
-            FROM TotalVentas v
-            LEFT JOIN TotalCostos c ON v.mes = c.mes
-            ORDER BY v.mes ASC;
+                DATE_FORMAT(v.fecha, '%Y-%m') AS mes,
+                -- Total vendido: Cantidad * Precio de venta (en DetalleVenta)
+                SUM(dv.cantidad * dv.precio_unitario) AS total_vendido,
+                -- Total costos estimados: Cantidad * Precio de compra actual (en Producto)
+                SUM(dv.cantidad * p.precio_compra) AS total_costos,
+                -- Ganancia: (Ventas - Costos)
+                SUM((dv.cantidad * dv.precio_unitario) - (dv.cantidad * p.precio_compra)) AS ganancia_estimada
+            FROM Venta v
+            JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+            JOIN Producto p ON dv.id_producto = p.id_producto
+            GROUP BY DATE_FORMAT(v.fecha, '%Y-%m')
+            ORDER BY mes ASC;
         """)
 
         conexion.commit()

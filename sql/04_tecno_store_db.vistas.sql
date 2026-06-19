@@ -19,41 +19,74 @@ FROM Producto
 WHERE stock < 5
   AND activo = 1;
 
+
+/* ============================================================================
+   VW_CostosMensuales
+   11. Costos del mes (mercadería comprada)
+   Roles: Admin, Gerente
+   Coder: Regina
+   ========================================================================= */
+
+CREATE OR REPLACE VIEW VW_CostosMensuales AS
+SELECT 
+    DATE_FORMAT(c.fecha, '%Y-%m') AS mes,
+    SUM(dc.cantidad * dc.precio_costo) AS total_costo_compras
+FROM Compra c
+JOIN DetalleCompra dc ON c.id_compra = dc.id_compra
+GROUP BY DATE_FORMAT(c.fecha, '%Y-%m')
+ORDER BY mes ASC;
+
+
 /* ============================================================================
    VW_RendimientosMensuales
-   11. Costos del mes (mercadería comprada)
    12. Ganancia estimada (ventas - costos)
-   13. Producto más vendido por mes*/
    Roles: Admin, Gerente
    Coder: Regina
    ========================================================================= */
 
 CREATE OR REPLACE VIEW VW_RendimientosMensuales AS
-WITH TotalVentas AS (
-    -- Agrupación de ventas por mes
+SELECT 
+    DATE_FORMAT(v.fecha, '%Y-%m') AS mes,    
+    SUM(dv.cantidad * dv.precio_unitario) AS total_vendido,    
+    SUM(dv.cantidad * p.precio_compra) AS total_costos,    
+    SUM((dv.cantidad * dv.precio_unitario) - (dv.cantidad * p.precio_compra)) AS ganancia_estimada
+FROM Venta v
+JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+JOIN Producto p ON dv.id_producto = p.id_producto
+GROUP BY DATE_FORMAT(v.fecha, '%Y-%m')
+ORDER BY mes ASC;
+
+
+/* ============================================================================
+   VW_ProductoMasVendidoPorMes
+   13. Producto más vendido por mes
+   Roles: Admin, Gerente
+   Coder: Regina
+   ========================================================================= */
+
+CREATE OR REPLACE VIEW VW_ProductoMasVendidoPorMes AS
+WITH RankingVentas AS (
     SELECT 
         DATE_FORMAT(v.fecha, '%Y-%m') AS mes,
-        SUM(dv.cantidad * dv.precio_unitario) AS total_vendido
+        p.id_producto,
+        p.descripcion AS producto,
+        p.marca,
+        SUM(dv.cantidad) AS cantidad_total_vendida,
+        RANK() OVER (
+            PARTITION BY DATE_FORMAT(v.fecha, '%Y-%m') 
+            ORDER BY SUM(dv.cantidad) DESC
+        ) AS posicion
     FROM Venta v
     JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
-    GROUP BY DATE_FORMAT(v.fecha, '%Y-%m')
-),
-TotalCostos AS (
-    -- Agrupación de compras por mes
-    SELECT 
-        DATE_FORMAT(c.fecha, '%Y-%m') AS mes,
-        SUM(dc.cantidad * dc.precio_costo) AS total_costos
-    FROM Compra c
-    JOIN DetalleCompra dc ON c.id_compra = dc.id_compra
-    GROUP BY DATE_FORMAT(c.fecha, '%Y-%m')
+    JOIN Producto p ON dv.id_producto = p.id_producto
+    GROUP BY DATE_FORMAT(v.fecha, '%Y-%m'), p.id_producto, p.descripcion, p.marca
 )
--- Consolidación final con LEFT JOIN que los meses con ventas se muestren 
--- aunque no hayan tenido compras 
 SELECT 
-    v.mes,
-    ROUND(v.total_vendido, 2) AS total_vendido,
-    ROUND(IFNULL(c.total_costos, 0.00), 2) AS total_costos,
-    ROUND(v.total_vendido - IFNULL(c.total_costos, 0.00), 2) AS ganancia_estimada
-FROM TotalVentas v
-LEFT JOIN TotalCostos c ON v.mes = c.mes
-ORDER BY v.mes ASC;
+    mes,
+    id_producto,
+    producto,
+    marca,
+    cantidad_total_vendida
+FROM RankingVentas
+WHERE posicion = 1
+ORDER BY mes ASC;
