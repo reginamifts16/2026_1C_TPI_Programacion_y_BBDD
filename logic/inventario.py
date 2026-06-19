@@ -10,3 +10,21 @@ CODER ZERO: Regina
 ===============================================================================
 """
 
+from db.dao import dar_baja_logica_producto
+
+
+def gestionar_baja_logica(id_producto):
+    """
+    PROPÓSITO: Retira un artículo de comercialización (activo = 0).
+    CASO DE USO: Un lote de placas de video presenta riesgo de incendio. 
+                 Se frena la venta, pero el stock físico aguarda devolución al proveedor.
+    """
+    if not isinstance(id_producto, int) or id_producto <= 0:
+        return False, "ID de producto inválido. Operación cancelada."
+        
+    exito = dar_baja_logica_producto(id_producto)
+    
+    if exito:
+        return True, "Producto retirado de comercialización (Baja Lógica aplicada)."
+    else:
+        return False, "Fallo en la base de datos o el producto no existe."

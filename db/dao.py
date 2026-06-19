@@ -307,3 +307,29 @@ def obtener_productos_stock_critico():
     finally:
         cursor.close()
         conexion.close()        
+
+
+def dar_baja_logica_producto(id_producto):
+    """
+    PROPÓSITO: Cambia el estado del producto a inactivo.
+    CODER: Regina
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: 
+        return False
+    
+    cursor = conexion.cursor()
+    try:
+        # Si no estuviera el PA, sería un 
+        # cursor.execute("UPDATE Producto SET activo = 0 WHERE id_producto = %s", (id_producto,))
+        cursor.execute("CALL PA_BajaLogicaProducto(%s)", (id_producto,))
+        conexion.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        conexion.rollback()
+        print(f"Error al ejecutar baja lógica: {e}")
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
