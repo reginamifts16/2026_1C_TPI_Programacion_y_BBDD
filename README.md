@@ -121,6 +121,7 @@ tecno_store/
 │
 ├── db/
 │   ├── connection.py
+│   ├── init_db.py
 │   └── dao.py
 │
 ├── logic/
@@ -269,8 +270,8 @@ El proyecto incluye:
 | Integrante | Responsabilidad |
 |------------|------------|
 | Cristian Duszynski | DevOps · Backend · Git |
-| María Fernanda Jurado | Integración Frontend · Validaciones |
-| Regina Noemí Molares | Arquitectura · Modelado de Datos · DBA · Scrum Master |
+| María Fernanda Jurado | Integración Frontend · Validaciones · QA · Testing · Documentación |
+| Regina Noemí Molares | Arquitectura · Modelado de Datos · DBA · Backend · Scrum Master |
 | Jennifer Moyano | QA · Testing · Documentación |
 
 ---
