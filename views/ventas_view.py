@@ -30,7 +30,6 @@ from utils.ticket import generar_ticket
 # =============================================================================
 # NUEVA VENTA (PUNTO DE VENTA - POS)
 # =============================================================================
-
 def mostrar_nueva_venta(frame, id_usuario_logueado=1):
     """
     PROPÓSITO: Renderiza el Punto de Venta (POS). Maneja el ciclo de búsqueda de productos, 
@@ -254,6 +253,9 @@ def mostrar_historial_ventas(frame):
     tree_historial.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
 
 
+# =============================================================================
+# ANULACION DE VENTA
+# =============================================================================
 def mostrar_anular_venta(frame):
     """
     PROPÓSITO: Interfaz gráfica de reversión de operaciones. Permite buscar una factura,
@@ -399,7 +401,7 @@ def mostrar_anular_venta(frame):
 
 
 # =============================================================================
-# MIS VENTAS DEL DÍA
+# MIS VENTAS DEL DÍA (A CONSIDERAR)
 # =============================================================================
 
 def mostrar_mis_ventas(frame):

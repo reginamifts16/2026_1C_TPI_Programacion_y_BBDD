@@ -26,7 +26,9 @@ from views.reportes_view import *
 from views.usuarios_view import *
 from views.consultas_view import *
 
-
+# =============================================================================
+# QUÉ ROL TIENE ACCESO A QUÉ FUNCIONES
+# =============================================================================
 MENU_ROLES = {
 
     "administrador": {
@@ -94,12 +96,18 @@ MENU_ROLES = {
     }
 }
 
+# =============================================================================
+# CIERRA LA SESION Y VUELVE AL LOGIN
+# =============================================================================
 def cerrar_sesion(ventana):
     ventana.destroy()
     from views.login_view import mostrar_login
     mostrar_login()
 
 
+# =============================================================================
+# MUESTRA MENU DE OPCIONES A PARTIR DE MENU_ROLES
+# =============================================================================
 def mostrar_dashboard(frame_contenido):
 
     limpiar_frame(frame_contenido)
@@ -145,6 +153,9 @@ def mostrar_submenu(frame_submenu,
         )
 
 
+# =============================================================================
+# MUESTRA EL MENU DE OPCIONES PRINCIPAL 
+# =============================================================================
 def mostrar_menu_principal(usuario):
 
     ventana = tk.Tk()

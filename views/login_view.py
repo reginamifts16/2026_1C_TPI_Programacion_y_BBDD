@@ -35,35 +35,9 @@ from logic.auth import autenticar_usuario
 from views.consultas_view import asignar_rol_logueado
 
 
-"""
-USUARIOS_DEMO = {
-
-    "admin": {
-        "password": "admin123",
-        "nombre": "Administrador",
-        "rol": "administrador"
-    },
-
-    "vendedor": {
-        "password": "vendedor123",
-        "nombre": "Vendedor",
-        "rol": "vendedor"
-    },
-
-    "depositero": {
-        "password": "depositero123",
-        "nombre": "Depositero",
-        "rol": "depositero"
-    },
-
-    "gerente": {
-        "password": "gerente123",
-        "nombre": "Gerente",
-        "rol": "gerente"
-    }
-}
-"""
-
+# =============================================================================
+# PANTALLA INICIAL -> LOGIN
+# =============================================================================
 def mostrar_login():
 
     ventana = tk.Tk()
@@ -160,48 +134,12 @@ def mostrar_login():
 
         ventana.destroy()
         mostrar_menu_principal(usuario_logueado)
-
-    """def validar_login():
-        
-        usuario = entry_usuario.get().strip()
-        password = entry_password.get().strip()
-
-        if usuario not in USUARIOS_DEMO:
-
-            messagebox.showerror(
-                "Error",
-                "Usuario inexistente."
-            )
-
-            return
-
-        if USUARIOS_DEMO[usuario]["password"] != password:
-
-            messagebox.showerror(
-                "Error",
-                "Contraseña incorrecta."
-            )
-
-            return
-
-        usuario_logueado = {
-            "nombre": USUARIOS_DEMO[usuario]["nombre"],
-            "rol": USUARIOS_DEMO[usuario]["rol"]            
-        }        
-        asignar_rol_logueado(USUARIOS_DEMO[usuario]["rol"])
-
-        ventana.destroy()
-
-        mostrar_menu_principal(
-            usuario_logueado
-        )
-"""
     
 
     frame_botones = tk.Frame(
     contenedor,
     bg=COLOR_PANEL
-)
+    )
 
     frame_botones.pack(pady=10)
 

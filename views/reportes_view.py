@@ -56,7 +56,7 @@ def mostrar_rendimiento_vendedor(frame):
 
 
 # =============================================================================
-# VENTAS POR FORMA DE PAGO
+# VENTAS POR FORMA DE PAGO (LO DEJAMOS?)
 # =============================================================================
 
 def mostrar_formas_pago(frame):

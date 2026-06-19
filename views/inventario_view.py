@@ -99,9 +99,8 @@ def mostrar_stock_critico(frame):
 
 
 # =============================================================================
-# CATEGORÍAS
+# CATEGORÍAS (ESTO VUELA)
 # =============================================================================
-
 def mostrar_categorias(frame):
 
     crear_pantalla_base(
@@ -112,9 +111,8 @@ def mostrar_categorias(frame):
 
 
 # =============================================================================
-# CONSULTA DE STOCK
+# CONSULTA DE STOCK (YA RESUELTO)
 # =============================================================================
-
 def mostrar_consulta_stock(frame):
 
     crear_pantalla_base(
@@ -249,7 +247,7 @@ def mostrar_productos(frame):
         
 
 # =============================================================================
-#  MOSTRAR PRODUCTOS INACTIVOS
+#  MOSTRAR PRODUCTOS INACTIVOS 
 # =============================================================================
 def mostrar_productos_inactivos(frame):
     """

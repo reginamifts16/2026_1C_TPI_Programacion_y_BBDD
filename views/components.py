@@ -14,6 +14,9 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 
+# =============================================================================
+# VALIDACION DE ENTRADAS NUMÉRICAS
+# =============================================================================
 def validar_entrada_numerica(valor):
     """
     PROPÓSITO: Valida si una entrada de texto o valor crudo puede ser convertida a un tipo flotante.
@@ -81,6 +84,9 @@ def crear_titulo(parent, texto):
     return titulo
 
 
+# =============================================================================
+# SUBTÍTULOS
+# =============================================================================
 def crear_subtitulo(parent, texto):
     """
     Crea un subtítulo o descripción.
@@ -254,7 +260,7 @@ def mostrar_funcion_correspondiente():
 
 
 # ============================================================================
-# PANTALLA ESTÁNDAR
+# PANTALLA ESTANDAR
 # ============================================================================
 
 def crear_pantalla_base(frame, titulo, descripcion):
@@ -277,7 +283,7 @@ def crear_pantalla_base(frame, titulo, descripcion):
     )
 
 # ============================================================================
-# COMPONENTES DE CONSULTAS Y RESULTADOS (NUEVO)
+# COMPONENTES DE CONSULTAS Y RESULTADOS (ESTE E SEL NUEVO)
 # ============================================================================
 
 def crear_etiqueta_info(parent, texto):

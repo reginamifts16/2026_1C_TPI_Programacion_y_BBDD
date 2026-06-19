@@ -18,10 +18,10 @@ import tkinter as tk
 from tkinter import ttk, messagebox
 from db.dao import buscar_productos_por_nombre, registrar_compra_transaccion, listar_proveedores_activos
 
+
 # =============================================================================
 # REGISTRAR COMPRA
 # =============================================================================
-
 def mostrar_registrar_compra(frame, id_usuario_logueado=1):
     """
     PROPÓSITO: Renderiza la pantalla de compras. Maneja la selección dinámica del proveedor,
@@ -206,7 +206,7 @@ def mostrar_registrar_compra(frame, id_usuario_logueado=1):
 
 
 # =============================================================================
-# PROVEEDORES
+# PROVEEDORES (VEREMOS)
 # =============================================================================
 
 def mostrar_proveedores(frame):

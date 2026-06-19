@@ -16,7 +16,7 @@ CODER: Regina
 import tkinter as tk
 from tkinter import ttk
 
-# Importamos TODOS los componentes necesarios desde el archivo centralizado
+# Importa los componentes 
 from views.components import (
     crear_titulo, 
     crear_boton_accion, 
@@ -38,7 +38,7 @@ def asignar_rol_logueado(rol_recibido):
     global ROL_USUARIO_LOGUEADO
     ROL_USUARIO_LOGUEADO = rol_recibido
 
-# DICCIONARIO TÉCNICO INTERNO (No altera la botonera principal de MENU_ROLES)
+# DICCIONARIO INTERNO (No altera la botonera principal de MENU_ROLES)
 DICCIONARIO_CONSULTAS = {
     "administrador": [
         # --- Básicas ---
@@ -113,7 +113,9 @@ DICCIONARIO_CONSULTAS = {
 }
 
 
-
+# =============================================================================
+# DECIDE QUIÉN ENTRA A QUÉ FUNCIONES
+# =============================================================================
 def obtener_consultas_por_rol(rol):
     """
     Usa la variable ROL_USUARIO_LOGUEADO para extraer las consultas
@@ -127,6 +129,9 @@ def obtener_consultas_por_rol(rol):
     
 
 
+# =============================================================================
+# DEFINE LAS CONSULTAS AVANZADAS (PROVISORIO)
+# =============================================================================
 def mostrar_consultas_avanzadas(frame):
     """
     Dibuja la pantalla de consultas en el frame central de la aplicación.
@@ -140,7 +145,7 @@ def mostrar_consultas_avanzadas(frame):
     
     # 1. Manejo de error si no hay consultas
     if len(consultas_permitidas) == 0:
-        crear_etiqueta_error(frame, "No tienes consultas asignadas para tu rol.")
+        crear_etiqueta_error(frame, "No tiene consultas asignadas para SU rol.")
         return
 
     # 2. Instrucciones y Selector
