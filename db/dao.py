@@ -38,11 +38,10 @@ def obtener_usuario_por_username(username_ingresado):
     
     # LOWER y REPLACE dejan el username limpio
     query = """
-        SELECT u.nombre, u.apellido, u.clave, u.activo, r.rol,
-               LOWER(REPLACE(CONCAT(u.nombre, u.apellido), ' ', '')) AS username
+        SELECT u.nombre, u.apellido, u.clave, u.activo, r.rol
         FROM Usuario u
         JOIN Rol r ON u.id_rol = r.id_rol
-        HAVING username = LOWER(%s)
+        WHERE LOWER(REPLACE(CONCAT(TRIM(u.nombre), TRIM(u.apellido)), ' ', '')) = LOWER(%s)
     """    
     cursor.execute(query, (username_ingresado,))
     resultado = cursor.fetchone()

@@ -80,7 +80,7 @@ INSERT INTO DetalleCompra (id_compra, id_producto, precio_costo, cantidad) VALUE
 (5, 13, 18000.00, 50), (5, 14, 38000.00, 40), (6, 15, 17500.00, 50), (6, 21, 32000.00, 15);
 
 -- =============================================================================
--- INSERCIÓN DE VENTAS (MAYO, JUNIO Y JULIO DE 2026) -> IDs del 1 al 87 garantizados
+-- INSERCIÓN DE VENTAS (MAYO, JUNIO Y JULIO DE 2026) 
 -- =============================================================================
 INSERT INTO Venta (id_venta, fecha, id_forma_pago, id_usuario) VALUES 
 -- Mayo
@@ -106,7 +106,7 @@ INSERT INTO Venta (id_venta, fecha, id_forma_pago, id_usuario) VALUES
 (84, '2026-07-28', 1, 4), (85, '2026-07-29', 2, 5), (86, '2026-07-30', 4, 6), (87, '2026-07-31', 1, 4);
 
 -- =============================================================================
--- INSERCIÓN EN DETALLEVENTA (Población para todas las ventas 1-87)
+-- INSERCIÓN EN DETALLEVENTA 
 -- =============================================================================
 INSERT INTO DetalleVenta (id_venta, id_producto, cantidad, precio_unitario) VALUES 
 (1, 1, 1, 38000.00), (1, 13, 2, 28000.00), (2, 25, 1, 34000.00), (3, 7, 1, 169000.00), (4, 13, 2, 26500.00), 
@@ -122,7 +122,7 @@ INSERT INTO DetalleVenta (id_venta, id_producto, cantidad, precio_unitario) VALU
 (45, 10, 1, 685000.00), (46, 22, 1, 34000.00), (47, 1, 1, 38000.00), (48, 14, 1, 59000.00), (49, 2, 1, 69000.00), 
 (49, 26, 1, 68000.00), (50, 17, 1, 499000.00);
 
--- Nuevas Ventas asignadas correctamente (IDs 51 al 87 mapeados con productos reales)
+-- Nuevas ventas para reportes mensuales
 INSERT INTO DetalleVenta (id_venta, id_producto, cantidad, precio_unitario) VALUES 
 (51, 2, 1, 69000.00), (52, 14, 1, 59000.00), (53, 29, 1, 120000.00), (54, 1, 1, 38000.00), (55, 22, 1, 820000.00),
 (56, 13, 2, 28000.00), (57, 7, 1, 175000.00), (58, 10, 1, 685000.00), (59, 22, 1, 34000.00), (60, 3, 1, 78000.00),

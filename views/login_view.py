@@ -159,4 +159,11 @@ def mostrar_login():
         width=15
     ).pack(side="left", padx=5)
 
+    # Debajo de tu botón de Login
+    info_debug = "Credenciales de testeo (Usuario/Clave común: 'clave'):\n"
+    info_debug += "- AdminPepe, GerentePepe\n- VendedorPepe, DepotPepe\n- VendedorJuana, VendedorRita, VendedorPipo"
+    
+    lbl_debug = tk.Label(contenedor, text=info_debug, fg="gray", justify=tk.LEFT, font=("Arial", 8))
+    lbl_debug.pack(pady=20)
+
     ventana.mainloop()
