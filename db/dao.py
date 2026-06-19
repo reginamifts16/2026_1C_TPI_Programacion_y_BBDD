@@ -165,7 +165,6 @@ def buscar_productos_por_nombre(termino):
     RETORNO: 
         :resultados: (list) Lista de diccionarios con los productos encontrados.
     """
-    from db.connection import conectar_bd
     conexion = conectar_bd()
     if not conexion:
         return []
@@ -186,3 +185,101 @@ def buscar_productos_por_nombre(termino):
     conexion.close()
     
     return resultados
+
+
+def obtener_venta_completa(id_venta):
+    """
+    PROPÓSITO: Recupera de forma relacional la cabecera (datos generales) y el 
+               detalle (artículos comprados) de una venta específica para su auditoría.
+
+    CODER: Regina.
+
+    PARÁMETROS:  
+        :id_venta: (int) Identificador único de la venta a buscar.
+
+    RETORNO: 
+        :resultado: (dict o None) Diccionario con llaves 'cabecera' y 'detalles', 
+                    o None si la factura no existe en la base de datos.
+    """  
+    conexion = conectar_bd()
+    if not conexion:
+        return None
+        
+    cursor = conexion.cursor(dictionary=True)
+    
+    # Buscar la cabecera uniendo tablas para traer nombres legibles
+    query_cabecera = """
+        SELECT v.id_venta, v.fecha, concat(u.nombre, ' ', u.apellido) AS vendedor, fp.forma_pago AS forma_pago
+        FROM Venta v
+        JOIN Usuario u ON v.id_usuario = u.id_usuario
+        JOIN FormaPago fp ON v.id_forma_pago = fp.id_forma_pago
+        WHERE v.id_venta = %s
+    """
+    cursor.execute(query_cabecera, (id_venta,))
+    cabecera = cursor.fetchone()
+    
+    # Si la cabecera no existe, la factura no existe.
+    if not cabecera:
+        cursor.close()
+        conexion.close()
+        return None
+        
+    # Buscar los datos de artículos de esa factura
+    query_detalles = """
+        SELECT p.descripcion, p.marca, dv.cantidad, dv.precio_unitario, (dv.cantidad * dv.precio_unitario) AS subtotal
+        FROM DetalleVenta dv
+        JOIN Producto p ON dv.id_producto = p.id_producto
+        WHERE dv.id_venta = %s
+    """
+    cursor.execute(query_detalles, (id_venta,))
+    detalles = cursor.fetchall()
+    
+    cursor.close()
+    conexion.close()
+    
+    return {"cabecera": cabecera, "detalles": detalles}
+
+
+
+def registrar_compra_transaccion(id_proveedor, id_usuario, lista_productos):
+    """
+    PROPÓSITO: Registra una compra a proveedor. Inserta cabecera y detalles.
+               El trigger 'TR_AumentarStockCompra' actualiza el stock automáticamente.
+
+    CODER: Fernanda.
+
+    PARÁMETROS:  
+        :id_proveedor: (int) ID del proveedor.
+        :id_usuario: (int) ID del usuario que registra la compra.
+        :lista_productos: (list) Lista de dicts [{'id_producto': x, 'cantidad': y, 'precio_costo': z}]
+
+    RETORNO: :bool: True si la transacción fue exitosa.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: return False
+    
+    cursor = conexion.cursor()
+    try:
+        conexion.start_transaction()
+        
+        # 1. Insertar Cabecera de Compra
+        cursor.execute("INSERT INTO Compra (id_proveedor, id_usuario, fecha) VALUES (%s, %s, NOW())", 
+                       (id_proveedor, id_usuario))
+        cursor.execute("SELECT LAST_INSERT_ID()")
+        id_compra = cursor.fetchone()[0]
+        
+        # 2. Insertar Detalles
+        query_detalle = "INSERT INTO DetalleCompra (id_compra, id_producto, cantidad, precio_costo) VALUES (%s, %s, %s, %s)"
+        for prod in lista_productos:
+            cursor.execute(query_detalle, (id_compra, prod['id_producto'], prod['cantidad'], prod['precio_costo']))
+            
+        conexion.commit()
+        return True
+    except Exception as e:
+        conexion.rollback()
+        print(f"Error en transacción de compra: {e}")
+        return False
+    finally:
+        cursor.close()
+        conexion.close()

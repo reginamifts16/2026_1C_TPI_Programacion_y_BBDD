@@ -91,3 +91,66 @@ def calcular_subtotal_memoria(carrito):
     for item in carrito:
         total += float(item['cantidad']) * float(item['precio_unitario'])
     return total
+
+
+def anular_venta_transaccion(id_venta):
+    """
+    PROPÓSITO: Revierte una venta iterando los detalles para sortear el Safe Update 
+               de MySQL. Restaura el stock y elimina registros (Detalle y Cabecera).
+
+    CODER: Cristian / Regina.
+
+    PARÁMETROS:  
+        :id_venta: (int) El identificador único de la factura a anular.
+
+    RETORNO: 
+        :exito: (bool) True si todo salió bien, False si hubo un error.
+        :mensaje: (str) Mensaje detallado del resultado.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion:
+        return False, "Error de conexión a la base de datos."
+
+    # IMPORTANTE: Usar dictionary=True para leer fácil las columnas devueltas
+    cursor = conexion.cursor(dictionary=True)
+    
+    try:
+        conexion.start_transaction()
+
+        # 1. Verificar si la venta realmente existe
+        cursor.execute("SELECT id_venta FROM Venta WHERE id_venta = %s", (id_venta,))
+        if not cursor.fetchone():
+            return False, "La factura especificada no existe en los registros."
+
+        # 2. RECUPERAR las cantidades ANTES de borrar el detalle
+        cursor.execute("SELECT id_producto, cantidad FROM DetalleVenta WHERE id_venta = %s", (id_venta,))
+        productos_a_restaurar = cursor.fetchall()
+
+        # 3. RESTAURAR EL STOCK (Bucle seguro que usa la Primary Key id_producto)
+        for item in productos_a_restaurar:
+            cursor.execute("""
+                UPDATE Producto 
+                SET stock = stock + %s 
+                WHERE id_producto = %s
+            """, (item['cantidad'], item['id_producto']))
+
+        # 4. Eliminar los Detalles (Hijos)
+        cursor.execute("DELETE FROM DetalleVenta WHERE id_venta = %s", (id_venta,))
+
+        # 5. Eliminar la Cabecera de la Venta (Padre)
+        cursor.execute("DELETE FROM Venta WHERE id_venta = %s", (id_venta,))
+
+        # Confirmamos la operación
+        conexion.commit()
+        return True, f"Factura #{id_venta} anulada exitosamente. El stock ha sido reintegrado."
+
+    except Exception as e:
+        conexion.rollback()
+        # IMPRESIÓN CLAVE: Dejamos registro en consola del error exacto de MySQL
+        print(f"Error crítico en BD al anular: {e}")
+        return False, f"La base de datos rechazó la operación: {e}"
+        
+    finally:
+        cursor.close()
+        conexion.close()

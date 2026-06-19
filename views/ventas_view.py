@@ -254,14 +254,11 @@ def mostrar_historial_ventas(frame):
     tree_historial.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
 
 
-# =============================================================================
-# ANULAR VENTA
-# =============================================================================
-
 def mostrar_anular_venta(frame):
     """
-    PROPÓSITO: Interfaz gráfica de reversión de operaciones. Ejecuta la baja lógica
-               de una venta y restituye stock mediante contrasientos analíticos.
+    PROPÓSITO: Interfaz gráfica de reversión de operaciones. Permite buscar una factura,
+               inspeccionar visualmente sus artículos y montos, y ejecutar la anulación
+               atómica con restitución automática de inventario.
 
     CODER: Regina.
 
@@ -271,55 +268,134 @@ def mostrar_anular_venta(frame):
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
     
-    crear_titulo(frame, "Anular Factura / Venta")
-    crear_subtitulo(frame, "Ingrese el ID del comprobante para proceder a la reversión atómica de stock.")
+    crear_titulo(frame, "Anulación de Comprobantes")
+    crear_subtitulo(frame, "Busque la factura por su número de ID e inspeccione los artículos antes de confirmar la baja.")
 
+    # --- PANEL SUPERIOR: BUSCADOR ---
     frame_busqueda = tk.Frame(frame, bg=COLOR_FONDO)
     frame_busqueda.pack(fill=tk.X, padx=20, pady=10)
 
-    tk.Label(frame_busqueda, text="Número de Factura (ID):", font=("Arial", 10, "bold"), bg=COLOR_FONDO).pack(side=tk.LEFT)
-    entry_id_venta = tk.Entry(frame_busqueda, width=15)
+    tk.Label(frame_busqueda, text="Número de Factura ID:", font=("Arial", 10, "bold"), bg=COLOR_FONDO).pack(side=tk.LEFT)
+    entry_id_venta = tk.Entry(frame_busqueda, width=15, font=("Arial", 10, "bold"))
     entry_id_venta.pack(side=tk.LEFT, padx=10)
 
-    # ---------------------------------------------------------
-    # FUNCIÓN ANIDADA (NO usamos POO - NO LA ROMPAN!!!)
-    # ---------------------------------------------------------
+    # --- PANEL CENTRAL: VISUALIZADOR DE DATOS DE LA OPERACIÓN ---
+    panel_datos = tk.LabelFrame(frame, text=" Datos de la Factura Encontrada ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_datos.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+    # Etiquetas informativas de cabecera
+    frame_info_cabe = tk.Frame(panel_datos, bg=COLOR_FONDO)
+    frame_info_cabe.pack(fill=tk.X, padx=10, pady=5)
+
+    lbl_fecha = tk.Label(frame_info_cabe, text="Fecha: --/--/----", bg=COLOR_FONDO, anchor=tk.W)
+    lbl_fecha.grid(row=0, column=0, padx=15, pady=2, sticky="w")
+    lbl_vendedor = tk.Label(frame_info_cabe, text="Cajero: ----------", bg=COLOR_FONDO, anchor=tk.W)
+    lbl_vendedor.grid(row=0, column=1, padx=15, pady=2, sticky="w")
+    lbl_pago = tk.Label(frame_info_cabe, text="Forma de Pago: ----------", bg=COLOR_FONDO, anchor=tk.W)
+    lbl_pago.grid(row=0, column=2, padx=15, pady=2, sticky="w")
+
+    # Tabla interna para ver los ítems vendidos
+    columnas_items = ("Producto", "Marca", "Cantidad", "P. Unitario", "Subtotal")
+    tree_items_factura = ttk.Treeview(panel_datos, columns=columnas_items, show="headings", height=6)
+    for col in columnas_items:
+        tree_items_factura.heading(col, text=col)
+        tree_items_factura.column(col, width=100, anchor=tk.CENTER)
+    tree_items_factura.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+    lbl_total_factura = tk.Label(panel_datos, text="TOTAL FACTURADO: $0.00", font=("Arial", 12, "bold"), bg=COLOR_FONDO, fg="#c0392b")
+    lbl_total_factura.pack(pady=5, anchor=tk.E, padx=10)
+
+
+    # =========================================================================
+    # FUNCIONES LOGICAS INTERNAS (Controladores / Clausuras)
+    # =========================================================================
+    
+    def cmd_buscar_factura():
+        factura_id_txt = entry_id_venta.get().strip()
+        if not validar_entrada_numerica(factura_id_txt):
+            messagebox.showerror("Error", "Debe ingresar un número de ID de factura válido.")
+            return
+            
+        # Limpia grilla por las dudas
+        for row in tree_items_factura.get_children():
+            tree_items_factura.delete(row)
+            
+        # Llamamos al dao
+        from db.dao import obtener_venta_completa
+        factura_encontrada = obtener_venta_completa(int(factura_id_txt))
+        
+        if not factura_encontrada:
+            messagebox.showwarning("No Encontrada", f"La Factura #{factura_id_txt} no existe en la base de datos.")
+            # Desactivar controles de borrado por seguridad (Escudo anti-falsos positivos)
+            lbl_fecha.config(text="Fecha: --/--/----")
+            lbl_vendedor.config(text="Cajero: ----------")
+            lbl_pago.config(text="Forma de Pago: ----------")
+            lbl_total_factura.config(text="TOTAL FACTURADO: $0.00")
+            btn_anular.config(state="disabled")
+            return
+            
+        # Si la encuentra -> cargamos la interfaz
+        cabe = factura_encontrada['cabecera']
+        lbl_fecha.config(text=f"Fecha: {cabe['fecha']}")
+        lbl_vendedor.config(text=f"Cajero: {cabe['vendedor']}")
+        lbl_pago.config(text=f"Pago: {cabe['forma_pago']}")
+        
+        total_acumulado = 0.0
+        for item in factura_encontrada['detalles']:
+            tree_items_factura.insert("", tk.END, values=(
+                item['descripcion'], 
+                item['marca'], 
+                item['cantidad'], 
+                f"${item['precio_unitario']}", 
+                f"${item['subtotal']}"
+            ))
+            total_acumulado += float(item['subtotal'])
+            
+        lbl_total_factura.config(text=f"TOTAL FACTURADO: ${total_acumulado:.2f}")
+        
+        # Habilitamos el botón de borrado
+        btn_anular.config(state="normal")
+
+
     def cmd_ejecutar_anulacion():
         factura_id = entry_id_venta.get().strip()
         
-        if not validar_entrada_numerica(factura_id):
-            messagebox.showerror("Error de entrada", "Debe ingresar un ID numérico válido.")
-            return
-
-        # Gobernanza --> doble confimacion antes de borrar
+        # Doble chequeo de gobernanza operativa
         respuesta = messagebox.askyesno(
-            "Confirmar Anulación", 
-            f"¿Está seguro que desea anular la Factura #{factura_id}?\n\nEsta acción eliminará el comprobante y restaurará el stock de forma permanente."
+            " ATENCIÓN - Confirmar Anulación de la Operación", 
+            f"¿Está totalmente segura de que desea eliminar la Factura #{factura_id}?\n\nEsta acción es irreversible: borrará los registros fiscales y devolverá los ítems inspeccionados al stock de Productos."
         )
         
         if not respuesta:
-            return # El usuario cancela la operación
+            return 
 
-        # Importa y llama a la capa lógica
+        # Invocamos la transacción ACID 
         from logic.ventas import anular_venta_transaccion
         exito, mensaje = anular_venta_transaccion(int(factura_id))
 
         if exito:
-            messagebox.showinfo("Anulación Exitosa", mensaje)
-            entry_id_venta.delete(0, tk.END) # Limpia el campito para otra consulta
+            messagebox.showinfo("Éxito", mensaje)
+            # Forzamos una recarga limpia de la pantalla para vaciar los datos borrados
+            mostrar_anular_venta(frame)
         else:
-            messagebox.showerror("Reversión Abortada", mensaje)
-    # ---------------------------------------------------------
+            messagebox.showerror("Error de Reversión", mensaje)
 
-    # Fijate cómo el botón llama a la función anidada sin paréntesis
-    tk.Button(
-        frame_busqueda, 
-        text="<< Buscar e Iniciar Reversión", 
+
+    # Asignamos la función de búsqueda al botón de la lupa
+    tk.Button(frame_busqueda, text="🔍 Buscar Factura", bg=COLOR_BOTON, fg=COLOR_TEXTO_CLARO, command=cmd_buscar_factura).pack(side=tk.LEFT)
+
+    # --- PANEL INFERIOR: ACCIÓN DE BORRADO ---
+    # Inicia deshabilitado por seguridad (state="disabled")
+    btn_anular = tk.Button(
+        frame, 
+        text="CONFIRMAR ANULACIÓN Y REINTEGRAR STOCK", 
         bg="#c0392b", 
         fg="white", 
-        font=("Arial", 10, "bold"),
+        font=("Arial", 11, "bold"),
+        state="disabled", 
         command=cmd_ejecutar_anulacion
-    ).pack(side=tk.LEFT, padx=10)
+    )
+    btn_anular.pack(fill=tk.X, padx=20, pady=15)
 
 
 # =============================================================================
