@@ -12,7 +12,8 @@ CODER: Regina
 from views.components import *
 import tkinter as tk
 from tkinter import *
-from db.dao import obtener_productos_stock_critico
+from db.dao import obtener_productos_stock_critico, obtener_productos_activos_ordenados 
+from logic.inventario import gestionar_baja_logica
 
 # =============================================================================
 # GESTIÓN DE PRODUCTOS
@@ -119,3 +120,103 @@ def mostrar_consulta_stock(frame):
         "Consulta de Stock",
         "Consulta rápida de disponibilidad de productos."
     )
+
+
+
+def mostrar_productos(frame):
+    """
+    PROPÓSITO: Pantalla ABM para el catálogo de productos.
+    CODER: Regina / Jennifer
+    """
+    limpiar_frame(frame)
+    frame.config(bg=COLOR_FONDO)
+    
+    crear_titulo(frame, "Gestión de Catálogo (ABM)")
+    crear_subtitulo(frame, "Alta, modificación y baja lógica de productos.")
+
+    frame_split = tk.Frame(frame, bg=COLOR_FONDO)
+    frame_split.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+    # =========================================================================
+    # PANEL IZQUIERDO: FORMULARIO
+    # =========================================================================
+    panel_form = tk.LabelFrame(frame_split, text=" Datos del Producto ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_form.pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=5)
+
+    tk.Label(panel_form, text="Descripción:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(10, 0))
+    entry_desc = tk.Entry(panel_form, width=30)
+    entry_desc.pack(padx=10, pady=2)
+
+    tk.Label(panel_form, text="Marca:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
+    entry_marca = tk.Entry(panel_form, width=30)
+    entry_marca.pack(padx=10, pady=2)
+
+    tk.Label(panel_form, text="Último Costo $:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
+    entry_costo = tk.Entry(panel_form, width=30)
+    entry_costo.pack(padx=10, pady=2)
+
+    tk.Label(panel_form, text="Precio Venta $:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
+    entry_venta = tk.Entry(panel_form, width=30)
+    entry_venta.pack(padx=10, pady=2)
+
+    tk.Label(panel_form, text="ID Categoría:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
+    entry_cat = tk.Entry(panel_form, width=30)
+    entry_cat.pack(padx=10, pady=2)
+
+    # Funciones de los botones
+    def cmd_guardar():
+        # TODO: Conectar a logic.inventario.gestionar_alta_producto
+        messagebox.showinfo("En desarrollo", "Función de Alta/Modificación en construcción.")
+
+    def cmd_eliminar():
+        seleccion = tree_prod.selection()
+        if not seleccion:
+            messagebox.showwarning("Atención", "Seleccione un producto de la lista para eliminar.")
+            return
+            
+        if messagebox.askyesno("Confirmar", "¿Está seguro de retirar este producto de la venta? (Baja Lógica)"):
+            item_id = int(tree_prod.item(seleccion[0])['values'][0])
+            
+            # Invocamos la regla de negocio
+            exito, mensaje = gestionar_baja_logica(item_id)
+            
+            if exito:
+                messagebox.showinfo("Éxito", mensaje)
+                tree_prod.delete(seleccion[0]) # Lo quitamos de la vista
+            else:
+                messagebox.showerror("Error", mensaje)
+
+    def cmd_limpiar():
+        for entry in (entry_desc, entry_marca, entry_costo, entry_venta, entry_cat):
+            entry.delete(0, tk.END)
+
+    frame_btns = tk.Frame(panel_form, bg=COLOR_FONDO)
+    frame_btns.pack(pady=20)
+    
+    tk.Button(frame_btns, text="💾 Guardar", bg="#27ae60", fg="white", width=12, command=cmd_guardar).grid(row=0, column=0, padx=2, pady=2)
+    tk.Button(frame_btns, text="🧹 Limpiar", bg="#f39c12", fg="white", width=12, command=cmd_limpiar).grid(row=0, column=1, padx=2, pady=2)
+    tk.Button(frame_btns, text="🗑️ Retirar de la venta", bg="#c0392b", fg="white", width=25, command=cmd_eliminar).grid(row=1, column=0, columnspan=2, padx=2, pady=5)
+
+    # =========================================================================
+    # PANEL DERECHO: CATÁLOGO ACTIVO
+    # =========================================================================
+    panel_grilla = tk.LabelFrame(frame_split, text=" Catálogo Activo ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_grilla.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True, padx=10, pady=5)
+
+    columnas = ("ID", "Desc", "Marca", "Costo", "Venta", "Stock")
+    tree_prod = ttk.Treeview(panel_grilla, columns=columnas, show="headings", height=15)
+    
+    tree_prod.heading("ID", text="ID")
+    tree_prod.column("ID", width=40)
+    for col in columnas[1:]:
+        tree_prod.heading(col, text=col)
+        tree_prod.column(col, width=80)
+        
+    tree_prod.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
+
+    # Cargar la grilla con db.dao.obtener_productos_activos_ordenados()    
+    productos_bd = obtener_productos_activos_ordenados()
+    
+    for p in productos_bd:
+        tree_prod.insert("", tk.END, 
+                         values=(p['id_producto'], p['descripcion'], p['marca'], f"${p['precio_compra']}", f"${p['precio_venta']}", p['stock']))

@@ -1,32 +1,37 @@
 @echo off
-title Instalador del Proyecto
+title Configuracion automatica del proyecto
 color 0A
 cd /d "%~dp0"
 
 echo ============================================
-echo        INSTALADOR DEL PROYECTO
+echo     CONFIGURACION AUTOMATICA DEL PROYECTO
 echo ============================================
 echo.
-echo Este asistente realizara los siguientes pasos:
+echo Este asistente realizara las siguientes tareas:
 echo.
-echo 1. Verificar que Python este instalado.
-echo 2. Crear el entorno virtual "env".
-echo 3. Instalar las dependencias.
+echo   1. Verificar que Python este instalado.
+echo   2. Crear el entorno virtual "env" (si no existe).
+echo   3. Instalar las dependencias del proyecto.
+echo   4. Permitir ejecutar la demostracion.
 echo.
 pause
 
-::------------------------------------------------
+::================================================
 :: Verificar Python
-::------------------------------------------------
+::================================================
 
 python --version >nul 2>&1
 
 if errorlevel 1 (
     echo.
-    echo ERROR:
-    echo Python no esta instalado o no esta agregado al PATH.
+    echo ============================================
+    echo ERROR
+    echo ============================================
     echo.
-    echo Descargalo desde:
+    echo Python no esta instalado o no esta agregado
+    echo al PATH del sistema.
+    echo.
+    echo Descarguelo desde:
     echo https://www.python.org/downloads/
     echo.
     pause
@@ -34,44 +39,146 @@ if errorlevel 1 (
 )
 
 echo.
+echo Python encontrado:
 python --version
 echo.
-choice /M "Desea crear el entorno virtual"
 
-if errorlevel 2 goto Dependencias
+::================================================
+:: Crear entorno virtual
+::================================================
 
 if not exist env (
+    echo Creando entorno virtual...
     python -m venv env
 
     if errorlevel 1 (
         echo.
+        echo ============================================
+        echo ERROR
+        echo ============================================
+        echo.
         echo No fue posible crear el entorno virtual.
+        echo.
         pause
         exit /b
     )
+) else (
+    echo El entorno virtual ya existe.
 )
 
-::------------------------------------------------
-:: Activar entorno
-::------------------------------------------------
+echo.
 
-:Dependencias
+::================================================
+:: Verificar entorno virtual
+::================================================
+
+if not exist env\Scripts\activate.bat (
+    echo.
+    echo ============================================
+    echo ERROR
+    echo ============================================
+    echo.
+    echo No se encontro el archivo de activacion
+    echo del entorno virtual.
+    echo.
+    pause
+    exit /b
+)
 
 call env\Scripts\activate.bat
 
-echo.
-choice /M "¿Desea instalar las dependencias?"
+::================================================
+:: Actualizar pip
+::================================================
 
-if errorlevel 2 goto Fin
+echo Actualizando pip...
+python -m pip install --upgrade pip >nul
+
+::================================================
+:: Verificar requirements.txt
+::================================================
+
+if not exist requirements.txt (
+    echo.
+    echo ============================================
+    echo ERROR
+    echo ============================================
+    echo.
+    echo No se encontro el archivo:
+    echo requirements.txt
+    echo.
+    pause
+    exit /b
+)
+
+::================================================
+:: Instalar dependencias
+::================================================
+
+echo.
+echo Instalando dependencias...
+echo.
 
 pip install -r requirements.txt
 
+if errorlevel 1 (
+    echo.
+    echo ============================================
+    echo ERROR
+    echo ============================================
+    echo.
+    echo Ocurrio un error durante la instalacion
+    echo de las dependencias.
+    echo.
+    pause
+    exit /b
+)
+
 echo.
-echo.
-echo Instalacion finalizada correctamente.
-echo Iniciando la aplicacion...
+echo ============================================
+echo Configuracion completada correctamente.
+echo ============================================
 echo.
 
-call ejecutar.bat
+::================================================
+:: Ejecutar demostracion
+::================================================
 
-:Fin
+choice /M "Desea ejecutar ahora la demostracion"
+
+if errorlevel 2 goto FIN
+
+if exist ejecutar.bat (
+    echo.
+    echo Iniciando la demostracion...
+    echo.
+    call ejecutar.bat
+    goto FIN
+)
+
+echo.
+echo ============================================
+echo ERROR
+echo ============================================
+echo.
+echo No se encontro el archivo ejecutar.bat
+echo.
+pause
+goto FIN
+
+:FIN
+
+echo.
+echo ============================================
+echo FIN DEL INSTALADOR
+echo ============================================
+echo.
+echo Si desea ejecutar la demostracion mas tarde:
+echo.
+echo    1. Ejecute el archivo ejecutar.bat
+echo.
+echo Gracias por utilizar el instalador.
+echo.
+pause
+
+exit /b

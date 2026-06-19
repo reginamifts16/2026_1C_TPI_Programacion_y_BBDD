@@ -333,3 +333,20 @@ def dar_baja_logica_producto(id_producto):
     finally:
         cursor.close()
         conexion.close()
+
+
+def obtener_productos_activos_ordenados():
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: return []
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        # Trae solo los activos (activo = 1)
+        cursor.execute("SELECT * FROM Producto WHERE activo = 1 ORDER BY precio_venta")
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()
