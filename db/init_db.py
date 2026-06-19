@@ -9,6 +9,9 @@ CODER: Regina
 """
 import mysql.connector
 
+# =============================================================================
+# INICIA EL ENTORNO -> CARGA VIEWS, PROCEDURES Y TRIGGERS
+# =============================================================================
 def inicializar_entorno_bd():
     """
     PROPÓSITO: Se conecta al motor MySQL genérico, crea la base de datos si no existe,

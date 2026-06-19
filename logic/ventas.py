@@ -11,6 +11,9 @@ CODER ZERO: Regina
 """
 from db.connection import conectar_bd
 
+# =============================================================================
+# REGISTRO DE VENTA
+# =============================================================================
 def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
     """
     PROPÓSITO: Controla el flujo atómico transaccional de una venta al público. Almacena 
@@ -74,6 +77,9 @@ def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
     return exito
 
 
+# =============================================================================
+# EL CHANGUITO
+# =============================================================================
 def calcular_subtotal_memoria(carrito):
     """
     PROPÓSITO: Recorre la lista temporal del carrito y calcula el monto total a cobrar 
@@ -93,6 +99,9 @@ def calcular_subtotal_memoria(carrito):
     return total
 
 
+# =============================================================================
+# ANULA UNA VENTA
+# =============================================================================
 def anular_venta_transaccion(id_venta):
     """
     PROPÓSITO: Revierte una venta iterando los detalles para sortear el Safe Update 

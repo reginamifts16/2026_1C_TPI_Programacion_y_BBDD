@@ -15,6 +15,9 @@ import os
 import mysql.connector
 from mysql.connector import Error 
 
+# =============================================================================
+# CONEXION CON LA BD
+# =============================================================================
 def conectar_bd():
     """
     PROPÓSITO: Establece y gestiona la conexión inicial con el motor de base de datos local.

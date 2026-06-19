@@ -12,6 +12,9 @@ CODER ZERO: Regina
 
 from db.connection import conectar_bd
 
+# =============================================================================
+# BUSCA USUARIO POR NOMBRE
+# =============================================================================
 def obtener_usuario_por_username(username_ingresado):
     """
     PROPÓSITO: genera el username con nombre y apellido y compara con la BD.
@@ -48,6 +51,9 @@ def obtener_usuario_por_username(username_ingresado):
     return resultado
 
 
+# =============================================================================
+# NUEVO USUARIO
+# =============================================================================
 def insertar_usuario(datos):
     """
     PROPÓSITO: inserta nuevo usuario.
@@ -91,6 +97,9 @@ def insertar_usuario(datos):
     return exito
 
 
+# =============================================================================
+# BUSCA PRODUCTO POR ID
+# =============================================================================
 def obtener_producto_por_id(id):
     """
     PROPÓSITO: Consulta en la base de datos un producto específico mediante su ID unívoco 
@@ -119,7 +128,9 @@ def obtener_producto_por_id(id):
     return producto
 
 
-
+# =============================================================================
+# LISTA DE PRODUCTOS EN VENTA
+# =============================================================================
 def listar_proveedores_activos():
     """
     PROPÓSITO: Recupera el catálogo completo de proveedores comerciales vigentes (con alta lógica).
@@ -148,6 +159,9 @@ def listar_proveedores_activos():
     return proveedores
 
 
+# =============================================================================
+# BUSCADOR DE PRODUCTOS POR NOMBRE (PARTE)
+# =============================================================================
 def buscar_productos_por_nombre(termino):
     """
     PROPÓSITO: Busca productos activos en el catálogo cuyo nombre o marca coincidan 
@@ -183,6 +197,9 @@ def buscar_productos_por_nombre(termino):
     return resultados
 
 
+# =============================================================================
+# OBTENER DATOS DE LA VENTA
+# =============================================================================
 def obtener_venta_completa(id_venta):
     """
     PROPÓSITO: Recupera de forma relacional la cabecera (datos generales) y el 
@@ -236,7 +253,9 @@ def obtener_venta_completa(id_venta):
     return {"cabecera": cabecera, "detalles": detalles}
 
 
-
+# =============================================================================
+# REGISTRA UNA COMPRA
+# =============================================================================
 def registrar_compra_transaccion(id_proveedor, lista_productos):
     """
     PROPÓSITO: Registra una compra a proveedor. Inserta cabecera y detalles.
@@ -287,6 +306,9 @@ def registrar_compra_transaccion(id_proveedor, lista_productos):
         conexion.close()
 
 
+# =============================================================================
+# TRAE PRODUCTOS DE STOCK BAJO
+# =============================================================================
 def obtener_productos_stock_critico():
     """
     PROPÓSITO: Recupera el listado de productos en estado crítico desde 
@@ -309,6 +331,9 @@ def obtener_productos_stock_critico():
         conexion.close()        
 
 
+# =============================================================================
+# SACA PRODUCTO DE LA VENTA
+# =============================================================================
 def dar_baja_logica_producto(id_producto):
     """
     PROPÓSITO: Cambia el estado del producto a inactivo.
@@ -335,6 +360,9 @@ def dar_baja_logica_producto(id_producto):
         conexion.close()
 
 
+# =============================================================================
+# LISTA DE PRODUCTOS EN VENTA ORDENADOS POR NOMBRE
+# =============================================================================
 def obtener_productos_activos_ordenados():
     from db.connection import conectar_bd
     conexion = conectar_bd()
@@ -342,7 +370,7 @@ def obtener_productos_activos_ordenados():
     cursor = conexion.cursor(dictionary=True)
     try:
         # Trae solo los activos (activo = 1)
-        cursor.execute("SELECT * FROM Producto WHERE activo = 1 ORDER BY precio_venta")
+        cursor.execute("SELECT * FROM Producto WHERE activo = 1 ORDER BY descripcion")
         return cursor.fetchall()
     except Exception as e:
         print(f"Error: {e}")
@@ -352,6 +380,9 @@ def obtener_productos_activos_ordenados():
         conexion.close()
 
 
+# =============================================================================
+# MUESTRA PRODUCTOS QUITADOS DE LA VENTA
+# =============================================================================
 def obtener_productos_inactivos():
     """
     PROPÓSITO: Recupera el listado de productos retirados de la venta (activo = 0).
@@ -374,6 +405,9 @@ def obtener_productos_inactivos():
         conexion.close()
 
 
+# =============================================================================
+# DA DE ALTA DE UN NUEVO PRODUCTO (CON STOCK 0)
+# =============================================================================
 def insertar_producto(descripcion, marca, precio_compra, precio_venta, id_categoria):
     from db.connection import conectar_bd
     conexion = conectar_bd()
@@ -395,6 +429,9 @@ def insertar_producto(descripcion, marca, precio_compra, precio_venta, id_catego
         conexion.close()
 
 
+# =============================================================================
+# MUESTRA CATEGORIAS (PARA EL LISTADO DE ALTA DE PRODUCTO)
+# =============================================================================
 def obtener_categorias():
     from db.connection import conectar_bd
     conexion = conectar_bd()

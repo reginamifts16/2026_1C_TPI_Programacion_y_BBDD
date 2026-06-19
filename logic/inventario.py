@@ -13,6 +13,9 @@ CODER ZERO: Regina
 from db.dao import dar_baja_logica_producto, insertar_producto
 
 
+# =============================================================================
+# QUITA DE LA VENTA UN PRODUCTO
+# =============================================================================
 def gestionar_baja_logica(id_producto):
     """
     PROPÓSITO: Retira un artículo de comercialización (activo = 0).
@@ -30,6 +33,9 @@ def gestionar_baja_logica(id_producto):
         return False, "Fallo en la base de datos o el producto no existe."
     
 
+# =============================================================================
+# ALTA DE NUEVO PRODUCTO 
+# =============================================================================
 def gestionar_alta_producto(desc, marca, costo_txt, venta_txt, cat_txt):
     if not desc or not marca:
         return False, "La descripción y la marca son obligatorias."

@@ -12,6 +12,9 @@ CODER: Regina
 
 from db.dao import obtener_usuario_por_username
 
+# =============================================================================
+# VALIDA ACCESO
+# =============================================================================
 def autenticar_usuario(username_ingresado, clave_ingresada):
     """
     PROPÓSITO: valida credenciales usando username compuesto.
