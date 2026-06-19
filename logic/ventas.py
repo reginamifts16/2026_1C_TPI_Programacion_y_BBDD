@@ -73,6 +73,7 @@ def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
 
     return exito
 
+
 def calcular_subtotal_memoria(carrito):
     """
     PROPÓSITO: Recorre la lista temporal del carrito y calcula el monto total a cobrar 
