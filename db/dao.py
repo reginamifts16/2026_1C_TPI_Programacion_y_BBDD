@@ -537,3 +537,42 @@ def obtener_rendimiento_vendedores():
     finally:
         cursor.close()
         conexion.close()
+
+
+# =============================================================================
+# RANKING DE PRODUCTOS MÁS VENDIDOS
+# =============================================================================
+def obtener_ranking_productos(limite=10):
+    """
+    Retorna el Top N de productos más vendidos, sumando cantidades e ingresos.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: 
+        return []
+        
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        # Agrupamos por producto, sumamos cantidades y ordenamos de mayor a menor
+        query = """
+            SELECT 
+                p.descripcion,
+                p.marca,
+                SUM(dv.cantidad) AS total_unidades,
+                SUM(dv.cantidad * dv.precio_unitario) AS ingresos_generados
+            FROM DetalleVenta dv
+            JOIN Producto p ON dv.id_producto = p.id_producto
+            GROUP BY p.id_producto, p.descripcion, p.marca
+            ORDER BY total_unidades DESC
+            LIMIT %s
+        """
+        cursor.execute(query, (limite,))
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error en consulta de ranking de productos: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()
+
+

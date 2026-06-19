@@ -6,3 +6,4 @@ db/__pycache__/connection.cpython-314.pyc
 *.json
 *.code-workspace
 regina.py
+views/reportes_view.py_OLD.py
