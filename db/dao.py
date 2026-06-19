@@ -498,3 +498,42 @@ def obtener_ventas_agrupadas_por_usuario(nombre_completo):
     finally:
         cursor.close()
         conexion.close()
+
+
+# =============================================================================
+# RENDIMIENTO DE VENDEDORES POR MES (Gerente-only)
+# =============================================================================
+def obtener_rendimiento_vendedores():
+    """
+    Retorna el total vendido, costo y margen de ganancia agrupado por vendedor y mes.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: 
+        return []
+        
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        # las cuentas que las haga sql
+        query = """
+            SELECT 
+                DATE_FORMAT(v.fecha, '%m-%Y') AS mes,
+                CONCAT(u.nombre, ' ', u.apellido) AS vendedor,
+                SUM(dv.cantidad * dv.precio_unitario) AS total_vendido,
+                SUM(dv.cantidad * p.precio_compra) AS costo_total,
+                SUM((dv.cantidad * dv.precio_unitario) - (dv.cantidad * p.precio_compra)) AS margen_ganancia
+            FROM Venta v
+            JOIN Usuario u ON v.id_usuario = u.id_usuario
+            JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+            JOIN Producto p ON dv.id_producto = p.id_producto
+            GROUP BY mes, vendedor
+            ORDER BY v.fecha DESC, total_vendido DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error en consulta de rendimiento de vendedores: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()

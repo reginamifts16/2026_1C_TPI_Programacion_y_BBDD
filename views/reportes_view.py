@@ -14,7 +14,8 @@ CODER: Regina
 """
 
 from views.components import *
-from db.dao import obtener_rendimientos_mensuales, obtener_ventas_agrupadas_por_usuario
+from db.dao import obtener_rendimientos_mensuales, obtener_ventas_agrupadas_por_usuario, obtener_rendimiento_vendedores
+from utils.helpers import formatear_moneda
 
 
 
@@ -32,16 +33,40 @@ def mostrar_ranking_productos(frame):
 
 
 # =============================================================================
-# RENDIMIENTO POR VENDEDOR
+# RENDIMIENTO POR VENDEDOR (GERENCIA)
 # =============================================================================
-
 def mostrar_rendimiento_vendedor(frame):
+    from views.components import limpiar_frame, crear_titulo, crear_subtitulo, COLOR_FONDO
+    from db.dao import obtener_rendimiento_vendedores
+    import tkinter as tk
+    from tkinter import ttk
 
-    crear_pantalla_base(
-        frame,
-        "Rendimiento por Vendedor",
-        "Comparación de desempeño entre vendedores."
-    )
+    limpiar_frame(frame)
+    crear_titulo(frame, "Rendimiento por Vendedor")
+    crear_subtitulo(frame, "Análisis mensual de ventas, costos operativos y margen de ganancia neto.")
+
+    # Armo las columnas del reporte
+    columnas = ("Mes", "Vendedor", "Total Vendido", "Costo Mercadería", "Margen de Ganancia")
+    tree = ttk.Treeview(frame, columns=columnas, show="headings", height=15)
+    
+    # Lo pongo besho
+    for col in columnas:
+        tree.heading(col, text=col)
+        tree.column(col, anchor=tk.CENTER, width=150)
+    tree.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
+
+    # traigo data del dao
+    datos_rendimiento = obtener_rendimiento_vendedores()
+    
+    # Llena la tabla en bonito
+    for fila in datos_rendimiento:
+        tree.insert("", tk.END, values=(
+            fila['mes'],
+            fila['vendedor'],
+            formatear_moneda(fila['total_vendido']),   # pa'eso les hice el jelper
+            formatear_moneda(fila['costo_total']),     
+            formatear_moneda(fila['margen_ganancia'])
+        ))
 
 
 # =============================================================================
@@ -64,7 +89,7 @@ def mostrar_mis_ventas(frame, usuario_logueado):
     
     total_acumulado = 0
     for h in historial:
-        # Usamos las claves correctas que devuelve la consulta SQL
+        # acá es donde había roto        
         tree.insert("", tk.END, values=(
             h['mes_anio'],
             f"${h['total_mes']:,.2f}"
@@ -81,7 +106,6 @@ def mostrar_mis_ventas(frame, usuario_logueado):
 # =============================================================================
 
 def mostrar_formas_pago(frame):
-
     crear_pantalla_base(
         frame,
         "Ventas por Forma de Pago",
