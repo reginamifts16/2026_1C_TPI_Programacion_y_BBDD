@@ -40,18 +40,13 @@ INSERT INTO FormaPago (id_forma_pago, forma_pago) VALUES
 -- =============================================================================
 
 INSERT INTO Usuario (apellido, nombre, clave, id_rol, activo) VALUES 
-('Duszynski', 'Cristian', 'admin123', 1, 1),
-('Molares', 'Regina', 'regi_mgr', 2, 1),
-('Moyano', 'Jennifer', 'jenni_dep', 3, 1),
-('Jurado', 'Fernanda', 'fer_top', 4, 1),
-('Medina', 'Carlos', 'carlos_med', 3, 1),
-('Rodríguez', 'Marina', 'marina_low', 3, 1);
-
--– INSERTS EXTRA PARA NO SUFRIR
-INSERT INTO Usuario (apellido, nombre, clave, id_rol, activo) VALUES 
-('Admin', 'El', 'admin123', 1, 1), 
-('Gerente', 'El', 'gerente123', 2, 1), 
-('Vendedor', 'El', 'vendedor123', 3, 1), 
+('Pepe', 'Admin', 'clave', 1, 1),
+('Pepe', 'Gerente', 'clave', 2, 1),
+('Pepe', 'Vendedor', 'clave', 3, 1),
+('Pepe', 'Depot', 'clave', 4, 1),
+('Juana', 'Vendedor', 'clave', 3, 1),
+('Rita', 'Vendedor', 'clave', 3, 1),
+('Pipo', 'Vendedor', 'clave', 3, 1); 
 
 
 -- =============================================================================
