@@ -19,7 +19,6 @@ CODER: Regina
 import tkinter as tk
 
 from views.components import *
-
 from views.ventas_view import *
 from views.inventario_view import *
 from views.compras_view import *

@@ -27,8 +27,6 @@ def obtener_usuario_por_username(username_ingresado):
     ERRORES:  (si aplica)
     	:raises: [TipoError] Condición bajo la cual lanza esta excepción.
     """
-
-
     conn = conectar_bd()
     if not conn:
         return None
@@ -42,8 +40,7 @@ def obtener_usuario_por_username(username_ingresado):
         FROM Usuario u
         JOIN Rol r ON u.id_rol = r.id_rol
         HAVING username = LOWER(%s)
-    """
-    
+    """    
     cursor.execute(query, (username_ingresado,))
     resultado = cursor.fetchone()
     cursor.close()
@@ -65,8 +62,7 @@ def insertar_usuario(datos):
     
     ERRORES:  (si aplica)
     	:raises: [TipoError] Condición bajo la cual lanza esta excepción.
-    """
-    
+    """    
     conexion = conectar_bd()
     cursor = conexion.cursor()
     
@@ -257,8 +253,7 @@ def registrar_compra_transaccion(id_proveedor, lista_productos):
     Así nos aseguramos de que el vendedor siempre facture con el precio actualizado. 
     El historial exacto de cuánto pagamos en el pasado queda guardado en la tabla de detalles 
     de compra (guarda la auditoría! XD)
-    """
-    from db.connection import conectar_bd
+    """   
     conexion = conectar_bd()
     if not conexion: 
         return False
@@ -290,3 +285,25 @@ def registrar_compra_transaccion(id_proveedor, lista_productos):
     finally:
         cursor.close()
         conexion.close()
+
+
+def obtener_productos_stock_critico():
+    """
+    PROPÓSITO: Recupera el listado de productos en estado crítico desde 
+    la vista SQL VW_StockCritico.
+    CODER: Regina.
+    """   
+    conexion = conectar_bd()
+    if not conexion:
+        return []
+        
+    cursor = conexion.cursor(dictionary=True)
+    try:
+        cursor.execute("SELECT * FROM VW_StockCritico")
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al consultar stock crítico: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()        

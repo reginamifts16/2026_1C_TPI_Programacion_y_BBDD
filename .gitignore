@@ -1,0 +1,8 @@
+ejemplo_3_capas.py
+logic/__pycache__/auth.cpython-314.pyc
+logic/__pycache__/ventas.cpython-314.pyc
+db/__pycache__/connection.cpython-314.pyc
+*.pyc
+*.json
+*.code-workspace
+regina.py
