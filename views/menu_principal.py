@@ -55,7 +55,7 @@ MENU_ROLES = {
             ("Rendimiento por vendedor", mostrar_rendimiento_vendedor)
         ],
         "Administración": [
-            ("Gestión de usuarios", mostrar_usuarios)#,  NO WAY. No llegamos
+            ("Gestión de usuarios", mostrar_gestion_usuarios)#,  NO WAY. No llegamos
             #("Auditoría SQL Avanzada", mostrar_consultas_avanzadas) 
         ]
     },

@@ -639,3 +639,103 @@ def obtener_ventas_por_forma_pago():
     finally:
         cursor.close()
         conexion.close()
+
+
+# =============================================================================
+# GESTIÓN DE USUARIOS (ABM)
+# =============================================================================
+
+def obtener_todos_los_usuarios():
+    """Trae todos los usuarios para armar la grilla del Admin."""   
+    conexion = conectar_bd()
+    if not conexion:
+        return []
+    try:
+        cursor = conexion.cursor(dictionary=True)
+        # Traemos todo.
+        cursor.execute("SELECT u.id_usuario, u.apellido, u.nombre, u.id_rol, r.rol AS nombre_rol, u.activo FROM Usuario u  INNER JOIN Rol r ON u.id_rol = r.id_rol;")
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al obtener usuarios: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()
+
+def insertar_usuario(apellido, nombre, clave, id_rol):
+    """Alta de usuario."""
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion:
+        return False
+    try:
+        cursor = conexion.cursor()
+        query = "INSERT INTO Usuario (apellido, nombre, clave, id_rol, activo) VALUES (%s, %s, %s, %s, 1)"
+        cursor.execute(query, (apellido, nombre, clave, id_rol))
+        conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error al insertar usuario: {e}")
+        conexion.rollback()
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
+
+def modificar_usuario(id_usuario, apellido, nombre, clave, id_rol):
+    """Modificación de los datos del usuario."""
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion:
+        return False
+    try:
+        cursor = conexion.cursor()
+        query = "UPDATE Usuario SET apellido = %s, nombre = %s, clave = %s, id_rol = %s WHERE id_usuario = %s"
+        cursor.execute(query, (apellido, nombre, clave, id_rol, id_usuario))
+        conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error al modificar usuario: {e}")
+        conexion.rollback()
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
+
+def baja_logica_usuario(id_usuario):
+    """Baja Lógica: Pasa activo a 0."""
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion:
+        return False
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("UPDATE Usuario SET activo = 0 WHERE id_usuario = %s", (id_usuario,))
+        conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error en baja lógica de usuario: {e}")
+        conexion.rollback()
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
+        
+def reactivar_usuario(id_usuario):
+    """Pasa activo a 1."""
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion:
+        return False
+    try:
+        cursor = conexion.cursor()
+        cursor.execute("UPDATE Usuario SET activo = 1 WHERE id_usuario = %s", (id_usuario,))
+        conexion.commit()
+        return True
+    except Exception as e:
+        print(f"Error al reactivar usuario: {e}")
+        conexion.rollback()
+        return False
+    finally:
+        cursor.close()
+        conexion.close()

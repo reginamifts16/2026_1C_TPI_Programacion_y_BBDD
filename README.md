@@ -1,296 +1,170 @@
-# Tecno Store
+# Tecno Store — Sistema de Gestión y Punto de Venta
 
-Sistema de Gestión y Punto de Venta para comercios minoristas de productos tecnológicos.
+Sistema integral de gestión y Punto de Venta (POS) para comercios minoristas de productos tecnológicos.
 
 ## Descripción
 
-Tecno Store es una aplicación desarrollada como trabajo práctico integrador para las asignaturas **Técnicas de Programación** y **Administración y Gestión de Bases de Datos** del **IFTS N.º 16**.
+**Tecno Store** es una aplicación de escritorio diseñada para centralizar, controlar y optimizar los flujos comerciales y logísticos de una tienda tecnológica. Desarrollada como Trabajo Práctico Integrador para las asignaturas **Técnicas de Programación** y **Administración y Gestión de Bases de Datos** del **IFTS N.º 16**.
 
-El sistema permite administrar las operaciones principales de un negocio de artículos tecnológicos:
-
-- Gestión de productos e inventario.
-- Registro de compras a proveedores.
-- Registro de ventas.
-- Control de stock.
-- Administración de usuarios y roles.
-- Generación de reportes e indicadores de gestión.
-
-El proyecto fue diseñado utilizando una arquitectura por capas para separar la lógica de negocio, el acceso a datos y la interfaz gráfica.
+El proyecto fue diseñado utilizando una estricta **arquitectura por capas** para separar la lógica de negocio, el acceso a persistencia (BBDD) y la interfaz gráfica, garantizando escalabilidad y un código limpio.
 
 ---
 
 ## Objetivos
 
-- Centralizar la información operativa del negocio.
-- Mantener la integridad y consistencia de los datos.
-- Controlar el acceso según el perfil del usuario.
-- Facilitar la gestión de inventario y ventas.
-- Obtener información útil para la toma de decisiones.
+- Centralizar la información operativa del negocio en tiempo real.
+- Mantener la integridad y consistencia de los datos mediante transacciones (ACID).
+- Controlar el acceso y la visibilidad de opciones según el perfil del empleado.
+- Facilitar la gestión de inventario, abastecimiento y ventas al público.
+- Extraer inteligencia de negocio (reportes) para la toma de decisiones gerenciales.
 
 ---
 
-## Funcionalidades
+## Funcionalidades Principales
 
-### Gestión de Usuarios
+### Gestión de Usuarios (Personal)
+- Alta, modificación y baja lógica de empleados.
+- Asignación de roles de acceso.
 
-- Alta de usuarios.
-- Modificación de usuarios.
-- Baja lógica.
-- Asignación de roles.
+### Gestión de Inventario
+- Alta de nuevos productos al catálogo.
+- **Baja lógica:** Se ocultan de la venta pero se conservan para el historial estadístico.
+- Reactivación de productos discontinuados.
 
-### Gestión de Productos
+### Compras a Proveedores
+- Registro de abastecimiento.
+- **Automatización:** Actualización inmediata del stock físico en la base de datos tras confirmar la compra.
 
-- Alta de productos.
-- Modificación de productos.
-- Baja lógica.
-- Consulta de stock.
-
-### Gestión de Categorías
-
-- Alta y modificación de categorías.
-- Consulta de categorías.
-
-### Gestión de Proveedores
-
-- Alta de proveedores.
-- Modificación de proveedores.
-- Baja lógica.
-- Consulta de proveedores.
-
-### Compras
-
-- Registro de compras.
-- Asociación con proveedores.
-- Actualización automática de stock.
-
-### Ventas
-
-- Registro de ventas.
+### Ventas (POS)
+- Terminal de punto de venta interactivo.
 - Selección de forma de pago.
-- Generación de ticket.
-- Descuento automático de stock.
+- Generación y visualización de Ticket.
+- Descuento automático de stock (controlado mediante Triggers SQL).
+- Anulación de facturas con restitución atómica de inventario.
 
-### Reportes
-
+### Reportes y Analítica
 - Rendimientos mensuales.
-- Ranking de productos.
-- Rendimiento por vendedor.
-- Ventas por forma de pago.
-- Consultas analíticas.
+- Ranking de productos más vendidos.
+- Rendimiento mensual por vendedor.
+- Análisis de ventas según forma de pago.
 
 ---
 
 ## Roles del Sistema
 
-### Administrador
+El menú principal se adapta dinámicamente según quién inicie sesión:
 
-Acceso completo a todas las funcionalidades.
-
-### Gerente
-
-Acceso a reportes e indicadores de gestión.
-
-### Vendedor
-
-- Registro de ventas.
-- Consulta de stock.
-- Consulta de productos.
-
-### Depositero
-
-- Gestión de inventario.
-- Registro de compras.
-- Control de stock.
-- Consulta de proveedores.
+* **👑 Administrador:** Acceso irrestricto a todas las funcionalidades, incluyendo la gestión de credenciales del personal.
+* **📈 Gerente:** Acceso enfocado a la auditoría, reportes e indicadores estadísticos del negocio.
+* **🤝 Vendedor:** Restringido al registro de operaciones en mostrador (POS), consulta de stock disponible y visualización de sus propias métricas mensuales.
+* **🚚 Depositero:** Perfil logístico. Enfocado en el ingreso de mercadería, gestión del catálogo y control de productos activos/inactivos.
 
 ---
 
-## Arquitectura
+## Arquitectura del Software (Modelo Multicapa)
 
-El sistema implementa una arquitectura por capas:
+El sistema se estructura en módulos independientes para evitar el acoplamiento:
 
 ```text
 tecno_store/
 │
-├── main.py
-├── setup.bat
-├── ejecutar.bat
-├── requirements.txt
-├── readme.txt
-├── README.md
+├── main.py                  # Punto de entrada de la aplicación
+├── setup.bat                # Instalador automático del entorno
+├── ejecutar.bat             # Lanzador del sistema
+├── requirements.txt         # Dependencias de Python
 │
-├── db/
-│   ├── connection.py
-│   ├── init_db.py
-│   └── dao.py
+├── db/                      # Capa de Datos (Data Access Object)
+│   ├── connection.py        # Configuración de conexión a MySQL
+│   └── dao.py               # Abstracción de consultas SQL
 │
-├── logic/
-│   ├── auth.py
+├── logic/                   # Capa de Lógica (Reglas de Negocio)
+│   ├── auth.py              # Autenticación y roles
 │   ├── inventario.py
-│   ├── ventas.py
+│   ├── ventas.py            # Transacciones ACID de venta
 │   ├── compras.py
-│   └── reportes.py
+│   ├── usuarios.py
+│   └── reportes.py          # Formateo de analíticas
 │
-├── sql/
+├── sql/                     # Scripts de Base de Datos
 │   ├── 01_tecno_store_db.estructura.sql
 │   ├── 02_tecno_store_db.cargaData.sql
 │   ├── 03_tecno_store_db.consultas.sql
 │   ├── 04_tecno_store_db.vistas.sql
-│   ├── 05_techno_store_db.procedimientos.sql
-│   └── 06_techno_store_db.triggers.sql
+│   ├── 05_tecno_store_db.procedimientos.sql
+│   └── 06_tecno_store_db.triggers.sql
 │
-├── views/
+├── views/                   # Capa de Presentación (Tkinter)
 │   ├── login_view.py
 │   ├── menu_principal.py
-│   ├── ventas_view.py
-│   ├── inventario_view.py
-│   ├── compras_view.py
-│   ├── reportes_view.py
-│   └── usuarios_view.py
+│   └── [...otras vistas...]
 │
-└── utils/
+└── utils/                   # Herramientas auxiliares
     ├── ticket.py
     └── helpers.py
-```
 
-### Capas
-
-| Capa | Responsabilidad |
-|--------|--------|
-| db | Acceso a datos y consultas SQL |
-| logic | Reglas de negocio |
-| views | Interfaz gráfica |
-| utils | Funciones auxiliares |
-
----
 
 ## Modelo de Datos
 
-Principales entidades del sistema:
+Principales entidades relacionales gestionadas por MySQL:
 
-- Usuario
-- Rol
-- Producto
-- Categoría
-- Proveedor
-- Compra
-- DetalleCompra
-- Venta
-- DetalleVenta
-- FormaPago
+- `Usuario` | `Rol`
+- `Producto` | `Categoría`
+- `Proveedor`
+- `Compra` | `DetalleCompra`
+- `Venta` | `DetalleVenta` | `FormaPago`
 
-### Relaciones principales
-
-- Un Rol puede estar asignado a muchos Usuarios.
-- Un Usuario puede registrar muchas Ventas.
-- Una Forma de Pago puede utilizarse en muchas Ventas.
-- Un Proveedor puede suministrar muchas Compras.
-- Una Compra puede incluir muchos Productos.
-- Una Venta puede contener muchos Productos.
-- Un Producto pertenece a una Categoría.
+**Relaciones clave:** Implementación estricta de integridad referencial. Una venta agrupa múltiples detalles (productos), registrados por un usuario específico y abonados mediante una forma de pago. 
 
 ---
 
-## Tecnologías Utilizadas
+## Tecnologías y Principios
 
-- Python 3.x
-- Tkinter
-- MySQL
-- Git
-- GitHub
-
----
-
-## Principios de Diseño
-
-- Arquitectura por capas.
-- Separación de responsabilidades.
-- Baja lógica mediante campo `activo`.
-- Integridad referencial mediante claves foráneas.
-- Uso de transacciones para operaciones críticas.
-- Consultas analíticas realizadas en SQL.
+- **Backend:** Python 3.10+
+- **Frontend:** Tkinter (GUI)
+- **Base de Datos:** MySQL
+- **Control de Versiones:** Git & GitHub
+- **Principios Aplicados:** - Arquitectura por capas y separación de responsabilidades.
+  - Baja lógica (`activo = 0`).
+  - Control de concurrencia y Transacciones Críticas (`commit` / `rollback`).
+  - Extracción de datos vía Vistas SQL (`LEFT JOIN`, `GROUP BY`).
 
 ---
 
-## Requisitos Previos
+## Guía de Instalación y Despliegue 
 
-- Python 3.x
-- MySQL
-- Git
+### 1. Requisitos Previos
+- **Python 3.10+** (Asegurarse de tener Python agregado al `PATH` de Windows).
+- **XAMPP o servidor MySQL local** corriendo en el puerto estándar `3306`.
+- Usuario MySQL configurado como `root` sin contraseña 
 
----
+### 2. Configuración de la Base de Datos (Importación Manual)
+1. Abra su cliente MySQL (phpMyAdmin, Workbench, DBeaver, etc.).
+2. Importe el script **`sql/01_tecno_store_db.estructura.sql`** para construir las tablas.
+3. Importe el script **`sql/02_tecno_store_db.cargaData.sql`** para inyectar el **Dataset de Prueba** (usuarios, productos, ventas de ejemplo).
 
-## Instalación
+### 3. Instalación de Dependencias
+1. Clone el repositorio: `git clone https://github.com/USUARIO/tecno-store.git`
+2. Ingrese a la carpeta del proyecto.
+3. Haga doble clic en el archivo **`setup.bat`**. Este script creará un entorno virtual aislado (`env`) e instalará automáticamente las dependencias necesarias.
 
-Clonar el repositorio:
-
-```bash
-git clone https://github.com/USUARIO/tecno-store.git
-```
-
-Ingresar al proyecto:
-
-```bash
-cd tecno-store
-```
-
-Crear la base de datos ejecutando el script SQL correspondiente.
-
-Configurar los parámetros de conexión en:
-
-```text
-config.py
-```
-
-Ejecutar la aplicación:
-
-```bash
-python main.py
-```
+### 4. Ejecución del Sistema
+- Haga doble clic en **`ejecutar.bat`**.
+- El sistema iniciará la interfaz gráfica.
+- *Nota: Para probar el sistema con privilegios máximos, inicie sesión con las credenciales del Administrador.*
 
 ---
 
-## Base de Datos
+## 👥 Equipo de Desarrollo
 
-El proyecto incluye:
-
-- Creación de tablas.
-- Restricciones de integridad.
-- Claves primarias.
-- Claves foráneas.
-- Consultas SQL.
-- Vistas.
-- Procedimientos almacenados.
-- Triggers.
-
----
-
-## Integrantes
-
-| Integrante | Responsabilidad |
-|------------|------------|
-| Cristian Duszynski | DevOps · Backend · Git |
-| María Fernanda Jurado | Integración Frontend · Validaciones · QA · Testing · Documentación |
-| Regina Noemí Molares | Arquitectura · Modelado de Datos · DBA · Backend · Scrum Master |
-| Jennifer Moyano | QA · Testing · Documentación |
-
----
-
-## Asignaturas
-
-### Técnicas de Programación
-
-IFTS N.º 16  
-Docente: Ingrid García
-
-### Administración y Gestión de Bases de Datos
-
-IFTS N.º 16  
-Docente: Lic. Gustavo Escandell
+| Integrante | Roles y Responsabilidades |
+|------------|---------------------------|
+| **Regina Noemí Molares** | Arquitectura de Software · Modelado de Datos · DBA · Backend Core · Scrum Master |
+| **Cristian Duszynski** | DevOps · Backend · Control de Repositorio Git |
+| **María Fernanda Jurado** | Integración Frontend (Tkinter) · Validaciones UI · Testing · Documentación |
+| **Jennifer Moyano** | Diseño de Componentes QA · Utilidades · Analítica y Reportes · Documentación |
 
 ---
 
 ## Licencia
 
-Proyecto desarrollado exclusivamente con fines académicos para el IFTS N.º 16.
-No destinado a uso comercial.
+Proyecto desarrollado exclusivamente con fines académicos para el Instituto de Formación Técnica Superior N.º 16 (Ciudad Autónoma de Buenos Aires). No destinado a uso comercial.
