@@ -10,7 +10,7 @@ CODER ZERO: Regina
 ===============================================================================
 """
 
-from db.dao import dar_baja_logica_producto, insertar_producto, obtener_productos_activos_ordenados, buscar_productos_por_nombre
+from db.dao import dar_baja_logica_producto, insertar_producto, obtener_productos_activos_ordenados, buscar_productos_por_nombre,dar_alta_logica_producto
 
 
 # =============================================================================
@@ -31,6 +31,29 @@ def gestionar_baja_logica(id_producto):
         return True, "Producto retirado de comercialización (Baja Lógica aplicada)."
     else:
         return False, "Fallo en la base de datos o el producto no existe."
+    
+
+# =============================================================================
+# REACTIVA UN PRODUCTO EN EL CATÁLOGO
+# =============================================================================
+def gestionar_reactivacion_producto(id_producto):
+    """
+    PROPÓSITO: Puente lógico para volver a comercializar un artículo retirado.
+    CODER: Regina
+    PARÁMETROS:
+        :param id_producto: (int) ID del producto a reactivar.
+    RETORNO:
+        :return: (tuple) (bool, str) Tupla con el estado de éxito y un mensaje descriptivo.
+    """
+    if not isinstance(id_producto, int) or id_producto <= 0:
+        return False, "ID de producto inválido. Operación cancelada."
+        
+    exito = dar_alta_logica_producto(id_producto)
+    
+    if exito:
+        return True, "El producto ha sido reincorporado al catálogo exitosamente."
+    else:
+        return False, "No se pudo reactivar el producto en la base de datos."
     
 
 # =============================================================================

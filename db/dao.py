@@ -360,6 +360,38 @@ def dar_baja_logica_producto(id_producto):
 
 
 # =============================================================================
+# PONE PRODUCTO DE LA VENTA -> revierte la anterior
+# =============================================================================
+def dar_alta_logica_producto(id_producto):
+    """
+    PROPÓSITO: Cambia el estado del producto a activo (1) para volver a comercializarlo.
+    CODER: Regina
+    PARÁMETROS:
+        :param id_producto: (int) El identificador único del producto.
+    RETORNO:
+        :return: (bool) True si se actualizó correctamente, False en caso contrario.
+    """
+    from db.connection import conectar_bd
+    conexion = conectar_bd()
+    if not conexion: 
+        return False
+        
+    cursor = conexion.cursor()
+    try:
+        cursor.execute("UPDATE Producto SET activo = 1 WHERE id_producto = %s", (id_producto,))
+        conexion.commit()
+        return cursor.rowcount > 0
+    except Exception as e:
+        conexion.rollback()
+        print(f"Error al reactivar producto: {e}")
+        return False
+    finally:
+        cursor.close()
+        conexion.close()
+
+
+
+# =============================================================================
 # LISTA DE PRODUCTOS EN VENTA ORDENADOS POR NOMBRE
 # =============================================================================
 def obtener_productos_activos_ordenados():

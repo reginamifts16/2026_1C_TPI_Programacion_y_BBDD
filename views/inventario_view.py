@@ -10,23 +10,14 @@ CODER: Regina
 """
 
 from views.components import *
+from tkinter import messagebox
 import tkinter as tk
 from tkinter import *
 from db.dao import obtener_productos_stock_critico,obtener_productos_activos_ordenados, obtener_productos_inactivos, obtener_categorias 
-from logic.inventario import gestionar_baja_logica, gestionar_alta_producto, procesar_consulta_stock
+from logic.inventario import gestionar_baja_logica, gestionar_alta_producto, procesar_consulta_stock, gestionar_reactivacion_producto
 from utils.helpers import formatear_moneda
 
-# =============================================================================
-# GESTIÓN DE PRODUCTOS
-# =============================================================================
 
-'''def mostrar_productos(frame):
-
-    crear_pantalla_base(
-        frame,
-        "Gestión de Productos",
-        "Alta, modificación, baja lógica y consulta de productos."
-    )'''
 
 # =============================================================================
 # MOSTRAR PRODUCTOS CON STOCK BAJO
@@ -342,14 +333,57 @@ def mostrar_productos_inactivos(frame):
         
     tree_inactivos.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
-    productos_bd = obtener_productos_inactivos()
-    
-    for p in productos_bd:
-        tree_inactivos.insert("", tk.END, values=(
-            p['id_producto'], 
-            p['descripcion'], 
-            p['marca'], 
-            f"${p['precio_compra']}", 
-            p['stock']
-        ))
+    # =========================================================================
+    # FUNCIONES INTERNAS (Controladores)
+    # =========================================================================
+    def cargar_grilla():
+        """Limpia y vuelve a llenar la grilla consumiendo la base de datos"""
+        for row in tree_inactivos.get_children():
+            tree_inactivos.delete(row)
+            
+        productos_bd = obtener_productos_inactivos()
+        
+        for p in productos_bd:
+            tree_inactivos.insert("", tk.END, values=(
+                p['id_producto'], 
+                p['descripcion'], 
+                p['marca'], 
+                f"${p['precio_compra']}", 
+                p['stock']
+            ))
+
+    def cmd_reactivar():
+        """Captura el ID seleccionado, confirma y llama a la capa lógica"""
+        seleccion = tree_inactivos.selection()
+        if not seleccion:
+            messagebox.showwarning("Atención", "Seleccione un producto de la tabla para reactivarlo.")
+            return
+            
+        # Extraemos el ID de la primera columna (índice 0) de los valores
+        valores = tree_inactivos.item(seleccion)['values']
+        id_producto = int(valores)
+        
+        respuesta = messagebox.askyesno("Confirmar Acción", f"¿Desea reincorporar el producto ID {id_producto} al catálogo de venta?")
+        
+        if respuesta:
+            exito, mensaje = gestionar_reactivacion_producto(id_producto)
+            if exito:
+                messagebox.showinfo("Éxito", mensaje)
+                cargar_grilla() # Recarga la tabla para que el producto desaparezca visualmente
+            else:
+                messagebox.showerror("Error", mensaje)
+
+    # --- BOTÓN DE ACCIÓN INFERIOR ---
+    btn_reactivar = tk.Button(
+        frame, 
+        text="🟢 REACTIVAR PRODUCTO SELECCIONADO", 
+        bg="#27ae60", 
+        fg="white", 
+        font=("Arial", 11, "bold"), 
+        command=cmd_reactivar
+    )
+    btn_reactivar.pack(pady=10)
+
+    # Carga inicial de los datos al abrir la pantalla
+    cargar_grilla()
 
