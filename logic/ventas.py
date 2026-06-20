@@ -10,11 +10,12 @@ CODER ZERO: Regina
 ===============================================================================
 """
 from db.connection import conectar_bd
+from logic.auth import USUARIO_ID
 
 # =============================================================================
 # REGISTRO DE VENTA
 # =============================================================================
-def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
+def registrar_venta_transaccion(id_forma_pago, USUARIO_ID, carrito):
     """
     PROPÓSITO: Controla el flujo atómico transaccional de una venta al público. Almacena 
                la cabecera en BD, itera los detalles y asegura el comportamiento ACID global.
@@ -41,7 +42,7 @@ def registrar_venta_transaccion(id_forma_pago, id_usuario, carrito):
         conexion.start_transaction()
 
         # 1. Ejecutar procedimiento para cabecera de Venta
-        cursor.execute("CALL PA_RegistrarVenta(%s, %s)", (id_forma_pago, id_usuario))
+        cursor.execute("CALL PA_RegistrarVenta(%s, %s)", (id_forma_pago, USUARIO_ID))
         
         # Recuperar ID autoincremental generado para asociar los detalles
         cursor.execute("SELECT LAST_INSERT_ID()")

@@ -25,6 +25,7 @@ from views.compras_view import *
 from views.reportes_view import *
 from views.usuarios_view import *
 from views.consultas_view import *
+from logic.auth import USUARIO_ID
 
 
 
@@ -106,6 +107,7 @@ MENU_ROLES = {
 # CIERRA LA SESION Y VUELVE AL LOGIN
 # =============================================================================
 def cerrar_sesion(ventana):
+    USUARIO_ID = None
     ventana.destroy()
     from views.login_view import mostrar_login
     mostrar_login()

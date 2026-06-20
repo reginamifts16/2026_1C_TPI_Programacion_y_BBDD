@@ -12,6 +12,8 @@ CODER: Regina
 
 from db.dao import obtener_usuario_por_username
 
+USUARIO_ID = None
+
 # =============================================================================
 # VALIDA ACCESO
 # =============================================================================
@@ -48,6 +50,9 @@ def autenticar_usuario(username_ingresado, clave_ingresada):
     rol_final = usuario["rol"].lower()
     if rol_final == "admin":
         rol_final = "administrador"
+    
+    global USUARIO_ID
+    USUARIO_ID = usuario["id_usuario"]
         
     return {
         "success": True,

@@ -18,11 +18,12 @@ from views.components import limpiar_frame, validar_entrada_numerica, crear_titu
 from logic.ventas import calcular_subtotal_memoria, registrar_venta_transaccion
 from db.dao import buscar_productos_por_nombre
 from utils.ticket import generar_ticket, formatear_moneda
+import logic.auth as auth
 
 # =============================================================================
 # NUEVA VENTA (PUNTO DE VENTA - POS)
 # =============================================================================
-def mostrar_nueva_venta(frame, id_usuario_logueado=1):
+def mostrar_nueva_venta(frame):
     """
     PROPÓSITO: Renderiza el Punto de Venta (POS). Maneja el ciclo de búsqueda de productos, 
                armado del carrito en memoria y envío de la transacción a la base de datos.
@@ -30,8 +31,7 @@ def mostrar_nueva_venta(frame, id_usuario_logueado=1):
     CODER: Regina.
 
     PARÁMETROS:  
-        :frame: (tk.Frame) El contenedor principal donde se dibujará la pantalla.
-        :id_usuario_logueado: (int) El ID del empleado que está haciendo la venta (para la auditoría).
+        :frame: (tk.Frame) El contenedor principal donde se dibujará la pantalla.        
     """
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
@@ -142,8 +142,10 @@ def mostrar_nueva_venta(frame, id_usuario_logueado=1):
 
         total_venta = calcular_subtotal_memoria(carrito_actual)
 
+        print(auth.USUARIO_ID)
+        
         # Envío del carro completo a la persistencia transaccional (ACID)
-        exito = registrar_venta_transaccion(id_forma_pago, id_usuario_logueado, carrito_actual)
+        exito = registrar_venta_transaccion(id_forma_pago, auth.USUARIO_ID, carrito_actual)
         
         if exito:
             # Emisión del ticket tras confirmación física en BD
@@ -151,7 +153,7 @@ def mostrar_nueva_venta(frame, id_usuario_logueado=1):
             mostrar_popup_ticket_visual(texto_ticket_final)
             
             messagebox.showinfo("Éxito", "Venta registrada y stock descontado exitosamente.")
-            mostrar_nueva_venta(frame, id_usuario_logueado) 
+            mostrar_nueva_venta(frame) 
         else:
             messagebox.showerror("Error", "Ocurrió un problema en la transacción. Operación abortada.")
 
