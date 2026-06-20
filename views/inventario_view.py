@@ -359,9 +359,10 @@ def mostrar_productos_inactivos(frame):
             messagebox.showwarning("Atención", "Seleccione un producto de la tabla para reactivarlo.")
             return
             
-        # Extraemos el ID de la primera columna (índice 0) de los valores
-        valores = tree_inactivos.item(seleccion)['values']
-        id_producto = int(valores)
+        # Extrae la lista de valores de la fila
+        valores = tree_inactivos.item(seleccion)['values']        
+    
+        id_producto = int(valores[0])
         
         respuesta = messagebox.askyesno("Confirmar Acción", f"¿Desea reincorporar el producto ID {id_producto} al catálogo de venta?")
         

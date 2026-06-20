@@ -101,7 +101,7 @@ def mostrar_login():
     entry_password = tk.Entry(
         contenedor,
         width=30,
-        show="*"
+        show="💀"
     )
 
     entry_password.pack(pady=(0, 20))
