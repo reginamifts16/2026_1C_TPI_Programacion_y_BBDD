@@ -15,8 +15,8 @@ from utils.helpers import calcular_iva, formatear_moneda
 
 def generar_ticket(carrito, total_final, vendedor_nombre="Cajero"):
     """
-    PROPÓSITO: Genera una cadena de texto (ASCII Art) que simula un comprobante fiscal 
-               de facturación para ser mostrado en pantalla o enviado a una impresora térmica.
+    PROPÓSITO: Genera una cadena de texto (ASCII Art) que simula un comprobante 
+    para ser mostrado en pantalla o enviado a una impresora térmica.
 
     CODER: Jennifer.
 
@@ -28,13 +28,13 @@ def generar_ticket(carrito, total_final, vendedor_nombre="Cajero"):
     RETORNO: 
         :ticket_str: (str) El comprobante formateado y listo para imprimir.
     """
-    # Cálculos inversos para el desglose (Asumiendo que los precios del sistema ya traen IVA)
+    # Cálculos para el desglose 
     subtotal_sin_iva = total_final / 1.21
     monto_iva = calcular_iva(subtotal_sin_iva)
     
     fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
 
-    # Armado del ticket (40 caracteres de ancho estándar para POS térmicas)
+    # Armado del ticket (40 caracteres de ancho)
     ticket = []
     ticket.append("=" * 40)
     ticket.append("          TECNO STORE S.A.          ")

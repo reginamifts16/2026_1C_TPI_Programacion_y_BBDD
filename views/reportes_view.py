@@ -81,13 +81,13 @@ def mostrar_mis_ventas(frame, usuario_logueado):
 # =============================================================================
 def mostrar_rendimientos(frame):
     limpiar_frame(frame)
-    crear_titulo(frame, "Estado de Resultados Mensual")
-    crear_subtitulo(frame, "Análisis general financiero de la tienda.")
+    crear_titulo(frame, "Margen Bruto Mensual")
+    crear_subtitulo(frame, "Margen bruto calculado sobre la mercadería vendida durante el período")
     
-    panel = tk.LabelFrame(frame, text=" Indicadores Financieros ", bg=COLOR_FONDO)
+    panel = tk.LabelFrame(frame, text=" Resumen mensual ", bg=COLOR_FONDO)
     panel.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
 
-    columnas = ("Mes", "Ventas", "Costos", "Ganancia")
+    columnas = ("Mes", "Ventas", "Costos", "Margen Bruto")
     tree = ttk.Treeview(panel, columns=columnas, show="headings")
     
     for col in columnas:

@@ -50,9 +50,9 @@ MENU_ROLES = {
             #("Proveedores", mostrar_proveedores)
         ],
         "Reportes": [
-            ("Rendimientos mensuales", mostrar_rendimientos),
+            ("Márgenes brutos mensuales", mostrar_rendimientos),
             ("Ranking de productos", mostrar_ranking_productos),
-            ("Rendimiento por vendedor", mostrar_rendimiento_vendedor)
+            ("Margen bruto mensual por vendedor", mostrar_rendimiento_vendedor)
         ],
         "Administración": [
             ("Gestión de usuarios", mostrar_gestion_usuarios)#,  NO WAY. No llegamos
@@ -62,9 +62,9 @@ MENU_ROLES = {
 
     "gerente": {
         "Reportes": [
-            ("Rendimientos mensuales", mostrar_rendimientos),
+            ("Márgenes brutos mensuales", mostrar_rendimientos),
             ("Ranking de productos", mostrar_ranking_productos),
-            ("Rendimiento por vendedor", mostrar_rendimiento_vendedor),
+            ("Margen bruto mensual por vendedor", mostrar_rendimiento_vendedor),
             ("Ventas por forma de pago", mostrar_formas_pago)
         ]#,
         #"Consultas": [

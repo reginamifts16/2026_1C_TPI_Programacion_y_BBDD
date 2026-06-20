@@ -14,18 +14,10 @@ CODER: Regina
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-from views.components import (
-    limpiar_frame, 
-    validar_entrada_numerica, 
-    crear_titulo, 
-    crear_subtitulo,
-    COLOR_FONDO, 
-    COLOR_BOTON, 
-    COLOR_TEXTO_CLARO
-)
+from views.components import limpiar_frame, validar_entrada_numerica, crear_titulo, crear_subtitulo, COLOR_FONDO,  COLOR_BOTON,  COLOR_TEXTO_CLARO
 from logic.ventas import calcular_subtotal_memoria, registrar_venta_transaccion
 from db.dao import buscar_productos_por_nombre
-from utils.ticket import generar_ticket
+from utils.ticket import generar_ticket, formatear_moneda
 
 # =============================================================================
 # NUEVA VENTA (PUNTO DE VENTA - POS)
@@ -137,7 +129,7 @@ def mostrar_nueva_venta(frame, id_usuario_logueado=1):
 
     def actualizar_total_gui():
         total = calcular_subtotal_memoria(carrito_actual)
-        lbl_total.config(text=f"TOTAL A PAGAR: ${total:.2f}")
+        lbl_total.config(text=f"TOTAL A PAGAR: {formatear_moneda(total)}")
 
     def cmd_confirmar_venta():
         if not carrito_actual:
@@ -166,7 +158,9 @@ def mostrar_nueva_venta(frame, id_usuario_logueado=1):
     # =========================================================================
     # MAQUETACIÓN 
     # =========================================================================
-    tk.Label(frame, text="PUNTO DE VENTA (POS)", font=("Arial", 16, "bold"), bg=COLOR_FONDO).pack(pady=10)
+    crear_titulo(frame, "PUNTO DE VENTA (POS)")
+
+    # tk.Label(frame, text="PUNTO DE VENTA (POS)", font=("Arial", 16, "bold"), bg=COLOR_FONDO).pack(pady=10)
 
     frame_split = tk.Frame(frame, bg=COLOR_FONDO)
     frame_split.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
