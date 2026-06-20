@@ -155,7 +155,7 @@ Principales entidades relacionales gestionadas por MySQL:
 
 ---
 
-## 👥 Equipo de Desarrollo
+## Equipo de Desarrollo
 
 | Integrante | Roles y Responsabilidades |
 |------------|---------------------------|
@@ -169,3 +169,5 @@ Principales entidades relacionales gestionadas por MySQL:
 ## Licencia
 
 Proyecto desarrollado exclusivamente con fines académicos para el Instituto de Formación Técnica Superior N.º 16 (Ciudad Autónoma de Buenos Aires). No destinado a uso comercial.
+---
+[![LinkedIn](https://img.shields.io/badge/LinkedIn-Perfil-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/regina-molares/)
