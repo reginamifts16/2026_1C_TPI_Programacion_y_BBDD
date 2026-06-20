@@ -101,6 +101,7 @@ tecno_store/
 └── utils/                   # Herramientas auxiliares
     ├── ticket.py
     └── helpers.py
+```
 
 
 ## Modelo de Datos
