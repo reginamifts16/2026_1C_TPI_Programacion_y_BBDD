@@ -138,7 +138,7 @@ def mostrar_consulta_stock(frame):
     
     for col in columnas:
         tree.heading(col, text=col)
-        tree.column(col, anchor=tk.CENTER, width=anchos.get(col, 100))
+        tree.column(col, width=anchos.get(col, 100))
     
     tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
 
