@@ -13,7 +13,8 @@ from views.components import *
 import tkinter as tk
 from tkinter import *
 from db.dao import obtener_productos_stock_critico,obtener_productos_activos_ordenados, obtener_productos_inactivos, obtener_categorias 
-from logic.inventario import gestionar_baja_logica, gestionar_alta_producto
+from logic.inventario import gestionar_baja_logica, gestionar_alta_producto, procesar_consulta_stock
+from utils.helpers import formatear_moneda
 
 # =============================================================================
 # GESTIÓN DE PRODUCTOS
@@ -94,7 +95,7 @@ def mostrar_stock_critico(frame):
         command=cmd_cargar_datos
     ).pack(side=tk.RIGHT)
 
-    # Disparo inicial automático al abrir la pantalla
+    # ejecuta
     cmd_cargar_datos()
 
 
@@ -111,15 +112,81 @@ def mostrar_categorias(frame):
 
 
 # =============================================================================
-# CONSULTA DE STOCK (YA RESUELTO)
+# CONSULTA DE STOCK 
 # =============================================================================
 def mostrar_consulta_stock(frame):
+    """
+    PROPÓSITO: Interfaz gráfica para que el vendedor consulte rápidamente 
+               el producto, su precio de venta y el stock físico disponible.
+    CODER: Regina
+    PARÁMETROS:
+        :param frame: (tk.Frame) El contenedor central de la aplicación.
+    """
+    limpiar_frame(frame)
+    frame.config(bg=COLOR_FONDO)
 
-    crear_pantalla_base(
-        frame,
-        "Consulta de Stock",
-        "Consulta rápida de disponibilidad de productos."
-    )
+    crear_titulo(frame, "Consulta Rápida de Stock y Precios")
+    crear_subtitulo(frame, "Buscador de artículos activos en el catálogo de Tecno Store.")
+
+    # --- PANEL SUPERIOR: BUSCADOR ---
+    frame_busqueda = tk.Frame(frame, bg=COLOR_FONDO)
+    frame_busqueda.pack(fill=tk.X, padx=20, pady=10)
+
+    tk.Label(frame_busqueda, text="Nombre o Marca:", font=("Arial", 10, "bold"), bg=COLOR_FONDO).pack(side=tk.LEFT)
+    entry_buscar = tk.Entry(frame_busqueda, width=35, font=("Arial", 10))
+    entry_buscar.pack(side=tk.LEFT, padx=10)
+
+    # --- PANEL CENTRAL: GRILLA DE DATOS ---
+    panel_datos = tk.LabelFrame(frame, text=" Resultados de la Búsqueda ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_datos.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+
+    columnas = ("Producto / Descripción", "Marca", "Precio al Público", "Stock Físico")
+    tree = ttk.Treeview(panel_datos, columns=columnas, show="headings", height=15)
+
+    anchos = {"Producto / Descripción": 300, "Marca": 120, "Precio al Público": 120, "Stock Físico": 100}
+    
+    for col in columnas:
+        tree.heading(col, text=col)
+        tree.column(col, anchor=tk.CENTER, width=anchos.get(col, 100))
+    
+    tree.pack(fill=tk.BOTH, expand=True, padx=10, pady=10)
+
+    # =========================================================================
+    # FUNCIONES INTERNAS 
+    # =========================================================================
+    def cargar_grilla(termino=None):
+        """ Limpia la tabla y la vuelve a llenar consumiendo la capa lógica """
+        for row in tree.get_children():
+            tree.delete(row)
+        
+        # Llamada a la capa lógica
+        datos = procesar_consulta_stock(termino)
+        
+        if not datos and termino:
+            messagebox.showinfo("Sin resultados", "No se encontraron productos con ese criterio.")
+            
+        for d in datos:            
+            tree.insert("", tk.END, values=(
+                d['descripcion'],
+                d['marca'],
+                formatear_moneda(d['precio_venta']),
+                f"{d['stock']} u."
+            ))
+
+    def cmd_buscar():
+        termino = entry_buscar.get().strip()
+        cargar_grilla(termino)
+
+    def cmd_limpiar():
+        entry_buscar.delete(0, tk.END)
+        cargar_grilla() # Trae todo el catálogo nuevamente
+
+    # --- BOTONES 
+    tk.Button(frame_busqueda, text="🔍 Buscar", bg=COLOR_BOTON, fg=COLOR_TEXTO_CLARO, font=("Arial", 9, "bold"), command=cmd_buscar).pack(side=tk.LEFT, padx=5)
+    tk.Button(frame_busqueda, text="Limpiar Filtro", bg="#7f8c8d", fg=COLOR_TEXTO_CLARO, font=("Arial", 9, "bold"), command=cmd_limpiar).pack(side=tk.LEFT, padx=5)
+
+    # Ejecución inicial para mostrar todo el catálogo apenas se abre la pantalla
+    cargar_grilla()
 
 
 # =============================================================================
@@ -247,14 +314,13 @@ def mostrar_productos(frame):
         
 
 # =============================================================================
-#  MOSTRAR PRODUCTOS INACTIVOS 
+#  MOSTRAR PRODUCTOS INACTIVOS
 # =============================================================================
 def mostrar_productos_inactivos(frame):
     """
-    PROPÓSITO: Pantalla de productos retirados de circulación.
+    PROPÓSITO: Pantalla de productos fuera de la venta (0) o activos (1)
     CODER: Regina
-    """
-    from db.dao import obtener_productos_inactivos
+    """   
     
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
@@ -286,3 +352,4 @@ def mostrar_productos_inactivos(frame):
             f"${p['precio_compra']}", 
             p['stock']
         ))
+

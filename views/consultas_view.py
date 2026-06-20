@@ -38,7 +38,7 @@ def asignar_rol_logueado(rol_recibido):
     global ROL_USUARIO_LOGUEADO
     ROL_USUARIO_LOGUEADO = rol_recibido
 
-# DICCIONARIO INTERNO (No altera la botonera principal de MENU_ROLES)
+# DICCIONARIO INTERNO (Para TP BBDD - No altera la botonera principal de MENU_ROLES)
 DICCIONARIO_CONSULTAS = {
     "administrador": [
         # --- Básicas ---
@@ -121,7 +121,7 @@ def obtener_consultas_por_rol(rol):
     Usa la variable ROL_USUARIO_LOGUEADO para extraer las consultas
     requeridas del diccionario técnico, garantizando las 20 opciones para el TPI.
     """
-    # Forzamos minúsculas por si el rol global viene con variaciones de caja
+    # Forzamos minúsculas por si el rol global 
     rol_key = str(rol).lower() if rol else "vendedor"
     
     # Retorna la lista de strings para el Combobox de Tkinter
@@ -130,7 +130,7 @@ def obtener_consultas_por_rol(rol):
 
 
 # =============================================================================
-# DEFINE LAS CONSULTAS AVANZADAS (PROVISORIO)
+# DEFINE LAS CONSULTAS AVANZADAS (PROVISORIO) -> (ABORTADO por falta de tiempo) 
 # =============================================================================
 def mostrar_consultas_avanzadas(frame):
     """

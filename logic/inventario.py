@@ -10,7 +10,7 @@ CODER ZERO: Regina
 ===============================================================================
 """
 
-from db.dao import dar_baja_logica_producto, insertar_producto
+from db.dao import dar_baja_logica_producto, insertar_producto, obtener_productos_activos_ordenados, buscar_productos_por_nombre
 
 
 # =============================================================================
@@ -52,3 +52,22 @@ def gestionar_alta_producto(desc, marca, costo_txt, venta_txt, cat_txt):
     
     exito = insertar_producto(desc, marca, costo, venta, id_cat)
     return (True, "Producto registrado. Stock inicial: 0.") if exito else (False, "Error en la base de datos.")
+
+
+# =============================================================================
+# CONSULTA GENERAL DE STOCK
+# =============================================================================
+def procesar_consulta_stock(termino_busqueda=None):
+    """
+    PROPÓSITO: Puente lógico para que el vendedor consulte el stock y precio.
+               Filtra por nombre si hay un término, o trae todo el catálogo activo.
+    CODER: Regina
+    PARÁMETROS:
+        :param termino_busqueda: (str) Opcional. Palabra clave a buscar.
+    RETORNO:
+        :return: (list) Lista de diccionarios con los productos encontrados.
+    """
+    if termino_busqueda:
+        return buscar_productos_por_nombre(termino_busqueda)
+    else:
+        return obtener_productos_activos_ordenados()

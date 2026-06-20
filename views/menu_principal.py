@@ -87,17 +87,18 @@ MENU_ROLES = {
 
     "depositero": {
         "Inventario": [
-            ("Gestión de productos", mostrar_productos),
-            ("Stock crítico", mostrar_stock_critico),
-            ("Catálogo Inactivo", mostrar_productos_inactivos)
+            ("Gestión de productos", mostrar_productos)            
         ],
         "Compras": [
             ("Registrar compra", mostrar_registrar_compra)#,
             #("Proveedores", mostrar_proveedores)
-        ]#,
-        #"Consultas": [
+        ],
+        "Reportes": [
+            ("Stock crítico", mostrar_stock_critico),
+            ("Catálogo Inactivo", mostrar_productos_inactivos),
+            ("Consultar stock", mostrar_consulta_stock)    
         #    ("Consultas de Depósito", mostrar_consultas_avanzadas)
-        #]
+        ]
     }
 }
 
