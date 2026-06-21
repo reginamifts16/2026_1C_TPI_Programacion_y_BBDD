@@ -120,7 +120,7 @@ def mostrar_ranking_productos(frame):
     anchos = {"Puesto": 60, "Producto": 250, "Marca": 120, "Unidades Vendidas": 130, "Ingresos Generados": 150}
     for col in columnas:
         tree.heading(col, text=col)
-        tree.column(col, anchor=tk.CENTER, width=anchos.get(col, 100))
+        tree.column(col, width=anchos.get(col, 100))
     
     tree.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
 

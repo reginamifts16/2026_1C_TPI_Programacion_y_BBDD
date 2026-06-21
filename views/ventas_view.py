@@ -142,8 +142,8 @@ def mostrar_nueva_venta(frame):
 
         total_venta = calcular_subtotal_memoria(carrito_actual)
 
-        print(auth.USUARIO_ID)
-        
+        # print(auth.USUARIO_ID) ----> GRRRRR... ACÁ ESTABA EL MALDITO 
+
         # Envío del carro completo a la persistencia transaccional (ACID)
         exito = registrar_venta_transaccion(id_forma_pago, auth.USUARIO_ID, carrito_actual)
         
