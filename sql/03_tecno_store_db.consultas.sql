@@ -108,7 +108,34 @@ SELECT
 FROM Compra c
 INNER JOIN Proveedor prov ON c.id_proveedor = prov.id_proveedor;
 
-/* 9. Productos que nunca fueron comprados a ningún proveedor
+
+/* 9.
+Historial de ventas
+Tipo: JOIN
+Roles: Admin
+Coder: Regina
+*/
+
+SELECT
+    v.id_venta AS 'Nro Venta',
+    v.fecha AS 'Fecha',
+    CONCAT(u.apellido, ', ', u.nombre) AS 'Vendedor',
+    fp.forma_pago AS 'Forma de Pago',
+    SUM(dv.cantidad * dv.precio_unitario) AS 'Total'
+FROM Venta v
+JOIN Usuario u ON v.id_usuario = u.id_usuario
+JOIN FormaPago fp ON v.id_forma_pago = fp.id_forma_pago
+JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
+GROUP BY
+    v.id_venta,
+    v.fecha,
+    u.apellido,
+    u.nombre,
+    fp.forma_pago
+ORDER BY v.fecha DESC;
+
+
+/* 10. Productos que nunca fueron comprados a ningún proveedor
 Tipo: LEFT JOIN + NULL
 Roles: Admin, Depositero
 Coder: Cristian
@@ -127,7 +154,7 @@ WHERE dc.id_compra IS NULL;
 CONSULTAS GROUP BY / HAVING
 ============================================================================ */
 
-/* 10. Total vendido por mes
+/* 11. Total vendido por mes
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
@@ -141,7 +168,7 @@ ORDER BY mes ASC;
 
 -- Implementado dentro de VW_RendimientosMensuales
 
-/* 11. Costos del mes (mercadería comprada)
+/* 12. Costos del mes (mercadería comprada)
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
@@ -155,7 +182,7 @@ ORDER BY mes ASC;
 
 -- Implementado dentro de VW_RendimientosMensuales
 
-/* 12. Ganancia estimada (ventas - costos)
+/* 13. Margen bruto (ventas - costos)
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
@@ -163,13 +190,13 @@ Coder: Regina
 
 SELECT
     mes,
-    ganancia_estimada
+    margen_bruto
 FROM VW_RendimientosMensuales
 ORDER BY mes ASC;
 
 -- Implementado dentro de VW_RendimientosMensuales
 
-/* 13. Producto más vendido por mes
+/* 14. Producto más vendido por mes
 Tipo: GROUP BY - Vista Común Expresión (CTE).
 Roles: Admin, Gerente
 Coder: Regina
@@ -197,7 +224,7 @@ JOIN MaximoPorMes mpm ON vpm.mes = mpm.mes AND vpm.total_vendido = mpm.max_canti
 
 
 
-/* 14. Categoría más vendida
+/* 15. Categoría más vendida
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Cristian
@@ -214,7 +241,7 @@ GROUP BY c.id_categoria, c.categoria
 ORDER BY SUM(dv.cantidad) DESC
 LIMIT 1;
 
-/* 15. Cantidad de ventas por mes
+/* 16. Cantidad de ventas por mes
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
@@ -227,7 +254,7 @@ FROM Venta
 GROUP BY DATE_FORMAT(fecha, '%Y-%m')
 ORDER BY mes ASC;
 
-/* 16. Ticket promedio general
+/* 17. Ticket promedio general
 Tipo: GROUP BY
 Roles: Admin, Gerente
 Coder: Regina
@@ -241,7 +268,7 @@ FROM DetalleVenta
 GROUP BY id_venta
 ) AS sub;
 
-/* 17. Categorías con más de N productos activos
+/* 18. Categorías con más de N productos activos
 Tipo: GROUP BY + HAVING
 Roles: Admin, Depositero
 Coder: Regina
@@ -256,7 +283,7 @@ WHERE p.activo = 1
 GROUP BY c.id_categoria, c.categoria
 HAVING COUNT(p.id_producto) > 5;
 
-/* 18. Vendedores con ticket promedio superior a un monto
+/* 19. Vendedores con ticket promedio superior a un monto
 Tipo: GROUP BY + HAVING
 Roles: Admin, Gerente
 Coder: Regina
@@ -279,7 +306,7 @@ GROUP BY u.id_usuario, u.apellido, u.nombre
 HAVING ticket_promedio > 50000.00;
 -- HAVING ROUND(AVG(totales_ventas.total_ticket), 2) > 50000.00;?
 
-/* 19. Proveedores a los que se compró más de N veces
+/* 20. Proveedores a los que se compró más de 5 veces
 Tipo: GROUP BY + HAVING
 Roles: Admin, Depositero
 Coder: Regina
@@ -291,13 +318,13 @@ COUNT(c.id_compra) AS cantidad_compras
 FROM Compra c
 JOIN Proveedor pr ON c.id_proveedor = pr.id_proveedor
 GROUP BY pr.id_proveedor, pr.razon_social
-HAVING COUNT(c.id_compra) > 1;
+HAVING COUNT(c.id_compra) > 5;
 
 /* ============================================================================
 SUBCONSULTAS OBLIGATORIAS
 ============================================================================ */
 
-/* 20. Producto con el mayor stock actual
+/* 21. Producto con el mayor stock actual
 Tipo: Subconsulta escalar
 Roles: Admin, Depositero
 Coder: Regina
@@ -311,7 +338,7 @@ stock
 FROM Producto
 WHERE stock = (SELECT MAX(stock) FROM Producto);
 
-/* 21. Productos vendidos en ventas pagadas con crédito
+/* 22. Productos vendidos en ventas pagadas con crédito
 Tipo: Subconsulta IN
 Roles: Admin, Gerente
 Coder: Cristian
@@ -328,7 +355,7 @@ ON v.id_forma_pago = fp.id_forma_pago
 WHERE fp.forma_pago = 'Tarjeta de Crédito'
 );
 
-/* 22. Vendedores que tienen al menos una venta registrada
+/* 23. Vendedores que tienen al menos una venta registrada
 Tipo: Subconsulta EXISTS
 Roles: Admin, Gerente
 Coder: Cristian
@@ -346,7 +373,7 @@ WHERE EXISTS (
     WHERE v.id_usuario = u.id_usuario
 );
 
-/* 23. Productos cuyo precio supera el promedio de su categoría
+/* 24. Productos cuyo precio supera el promedio de su categoría
 Tipo: Subconsulta correlacionada
 Roles: Admin, Gerente, Vendedor
 Coder: Regina
@@ -368,3 +395,5 @@ SELECT AVG(p2.precio_venta)
 FROM Producto p2
 WHERE p2.id_categoria = p1.id_categoria
 );
+
+

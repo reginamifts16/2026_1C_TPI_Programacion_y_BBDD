@@ -39,7 +39,7 @@ ORDER BY mes ASC;
 
 /* ============================================================================
    VW_RendimientosMensuales
-   12. Ganancia estimada (ventas - costos)
+   12. Margen bruto (ventas - costos)
    Roles: Admin, Gerente
    Coder: Regina
    ========================================================================= */
@@ -49,7 +49,7 @@ SELECT
     DATE_FORMAT(v.fecha, '%Y-%m') AS mes,    
     SUM(dv.cantidad * dv.precio_unitario) AS total_vendido,    
     SUM(dv.cantidad * p.precio_compra) AS total_costos,    
-    SUM((dv.cantidad * dv.precio_unitario) - (dv.cantidad * p.precio_compra)) AS ganancia_estimada
+    SUM((dv.cantidad * dv.precio_unitario) - (dv.cantidad * p.precio_compra)) AS margen_bruto
 FROM Venta v
 JOIN DetalleVenta dv ON v.id_venta = dv.id_venta
 JOIN Producto p ON dv.id_producto = p.id_producto
