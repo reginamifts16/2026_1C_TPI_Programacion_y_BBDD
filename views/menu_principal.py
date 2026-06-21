@@ -38,7 +38,7 @@ MENU_ROLES = {
     "administrador": {
         "Ventas": [
             ("Nueva venta", mostrar_nueva_venta),
-            ("Historial ventas", mostrar_historial_ventas),
+            #("Historial ventas", mostrar_historial_ventas), # próxima mejora
             ("Anular venta", mostrar_anular_venta)
         ],
         "Inventario": [
@@ -56,8 +56,8 @@ MENU_ROLES = {
             ("Margen bruto mensual por vendedor", mostrar_rendimiento_vendedor)
         ],
         "Administración": [
-            ("Gestión de usuarios", mostrar_gestion_usuarios)#,  NO WAY. No llegamos
-            #("Auditoría SQL Avanzada", mostrar_consultas_avanzadas) 
+            ("Gestión de usuarios", mostrar_gestion_usuarios)#,  
+            #("Auditoría SQL Avanzada", mostrar_consultas_avanzadas)  # NO WAY- NO llegamos
         ]
     },
 
@@ -82,7 +82,7 @@ MENU_ROLES = {
             #("Consultas permitidas", mostrar_consultas_avanzadas)
         ],
         "Reportes": [
-            ("Mis ventas por mes", mostrar_mis_ventas) #necesito pasar un parámetro y no quiero usar lambdas
+            ("Mis ventas por mes", mostrar_mis_ventas) # este quería comer id_usuario
         ]
     },
 
