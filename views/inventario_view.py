@@ -200,7 +200,7 @@ def mostrar_productos(frame):
     # =========================================================================
     # PANEL IZQUIERDO: FORMULARIO
     # =========================================================================
-    panel_form = tk.LabelFrame(frame_split, text=" Datos del Producto ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_form = tk.LabelFrame(frame_split, text=" Producto Nuevo ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
     panel_form.pack(side=tk.LEFT, fill=tk.Y, padx=10, pady=5)
 
     tk.Label(panel_form, text="Descripción:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(10, 0))
@@ -222,7 +222,7 @@ def mostrar_productos(frame):
     tk.Label(panel_form, text="Categoría:", bg=COLOR_FONDO).pack(anchor=tk.W, padx=10, pady=(5, 0))
     
     # Carga dinámica del desplegable
-    from db.dao import obtener_categorias
+   
     categorias_bd = obtener_categorias()
     lista_cat = [f"{c['id_categoria']} - {c['categoria']}" for c in categorias_bd] if categorias_bd else ["0 - Sin categoría"]
     
@@ -269,7 +269,7 @@ def mostrar_productos(frame):
                 messagebox.showerror("Error", mensaje)
 
     def cmd_limpiar():
-        for entry in (entry_desc, entry_marca, entry_costo, entry_venta, entry_cat):
+        for entry in (entry_desc, entry_marca, entry_costo, entry_venta):
             entry.delete(0, tk.END)
 
     frame_btns = tk.Frame(panel_form, bg=COLOR_FONDO)

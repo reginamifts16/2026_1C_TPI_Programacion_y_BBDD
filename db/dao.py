@@ -13,6 +13,22 @@ CODER ZERO: Regina
 from db.connection import conectar_bd
 
 # =============================================================================
+# OBTIENE FORMAS DE PAGO
+# =============================================================================
+def obtener_formas_pago():
+    """ PROPÓSITO: Recupera el catálogo dinámico de formas de pago desde la BD. """
+    conexion = conectar_bd()
+    if not conexion: return {}
+    try:
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("SELECT id_forma_pago, forma_pago FROM FormaPago")
+        # Retorna un diccionario: {"Efectivo": 1, "Tarjeta": 2...}
+        return {fila['forma_pago']: fila['id_forma_pago'] for fila in cursor.fetchall()}
+    finally:
+        cursor.close()
+        conexion.close()
+
+# =============================================================================
 # BUSCA USUARIO POR NOMBRE
 # =============================================================================
 def obtener_usuario_por_username(username_ingresado):
