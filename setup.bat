@@ -92,7 +92,7 @@ call env\Scripts\activate.bat
 ::================================================
 
 echo Actualizando pip...
-python -m pip install --upgrade pip >nul
+python -m pip install --upgrade pip >nul 2>&1
 
 ::================================================
 :: Verificar requirements.txt
