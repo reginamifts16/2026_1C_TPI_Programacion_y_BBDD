@@ -167,4 +167,7 @@ def mostrar_login():
     lbl_debug = tk.Label(contenedor, text=info_debug, fg="gray", justify=tk.LEFT, font=("Arial", 8))
     lbl_debug.pack(pady=20)
 
-    ventana.mainloop()
+    try:
+        ventana.mainloop()
+    except Exception as e:
+        print(f"DEBUG: El programa se cerró por: {e}")

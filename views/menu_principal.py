@@ -38,7 +38,7 @@ MENU_ROLES = {
     "administrador": {
         "Ventas": [
             ("Nueva venta", mostrar_nueva_venta),
-            #("Historial ventas", mostrar_historial_ventas), # próxima mejora
+            ("Historial ventas", mostrar_historial_ventas), # próxima mejora
             ("Anular venta", mostrar_anular_venta)
         ],
         "Inventario": [
@@ -66,7 +66,7 @@ MENU_ROLES = {
             ("Márgenes brutos mensuales", mostrar_rendimientos),
             ("Ranking de productos", mostrar_ranking_productos),
             ("Margen bruto mensual por vendedor", mostrar_rendimiento_vendedor),
-            ("Ventas por forma de pago", mostrar_formas_pago)
+            ("Ventas por forma de pago", mostrar_formas_pago)            
         ]#,
         #"Consultas": [
         #    ("Consultas del Sistema", mostrar_consultas_avanzadas)
