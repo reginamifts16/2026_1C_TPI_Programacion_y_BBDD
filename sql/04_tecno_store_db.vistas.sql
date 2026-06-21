@@ -23,6 +23,7 @@ WHERE stock < 5
 /* ============================================================================
    VW_CostosMensuales
    11. Costos del mes (mercadería comprada)
+   Redundante, pero conservada por compatibilidad y motivos afectivos
    Roles: Admin, Gerente
    Coder: Regina
    ========================================================================= */

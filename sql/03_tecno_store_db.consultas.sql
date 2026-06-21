@@ -197,7 +197,13 @@ ORDER BY mes ASC;
 -- Implementado dentro de VW_RendimientosMensuales
 
 /* 14. Producto más vendido por mes
-Tipo: GROUP BY - Vista Común Expresión (CTE).
+Tipo: GROUP BY - Common Table Expression (CTE).
+CTE: WITH genera una tabla temporal adentro de la consulta
+y ayuda a simplificar las consultas más complejas
+En este caso permite calcular las ventas por producto 
+para cada mes y, a partir de esos resultados temporales, 
+obtener el producto más vendido de cada período sin repetir 
+lógica en la consulta.
 Roles: Admin, Gerente
 Coder: Regina
 */
@@ -306,7 +312,8 @@ GROUP BY u.id_usuario, u.apellido, u.nombre
 HAVING ticket_promedio > 50000.00;
 -- HAVING ROUND(AVG(totales_ventas.total_ticket), 2) > 50000.00;?
 
-/* 20. Proveedores a los que se compró más de 5 veces
+/* 20. Proveedores a los que se compró más de N veces
+Dejamos N=1 porque tenemos poquitas compras
 Tipo: GROUP BY + HAVING
 Roles: Admin, Depositero
 Coder: Regina
@@ -318,7 +325,7 @@ COUNT(c.id_compra) AS cantidad_compras
 FROM Compra c
 JOIN Proveedor pr ON c.id_proveedor = pr.id_proveedor
 GROUP BY pr.id_proveedor, pr.razon_social
-HAVING COUNT(c.id_compra) > 5;
+HAVING COUNT(c.id_compra) > 1;
 
 /* ============================================================================
 SUBCONSULTAS OBLIGATORIAS
