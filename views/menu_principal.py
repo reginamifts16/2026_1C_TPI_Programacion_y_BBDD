@@ -42,6 +42,7 @@ MENU_ROLES = {
             ("Anular venta", mostrar_anular_venta)
         ],
         "Inventario": [
+            ("Consultar stock", mostrar_consulta_stock),
             ("Gestión de productos", mostrar_productos),
             ("Stock crítico", mostrar_stock_critico),
             ("Catálogo Inactivo", mostrar_productos_inactivos)

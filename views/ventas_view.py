@@ -36,7 +36,7 @@ def mostrar_nueva_venta(frame):
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
 
-    # Variable de estado temporal en memoria (Simula estado de POO)
+    # Variable de estado temporal en memoria (no tenemos POO)
     carrito_actual = [] 
 
     mapa_formas_pago = obtener_formas_pago()
@@ -62,7 +62,7 @@ def mostrar_nueva_venta(frame):
 
         txt_area = tk.Text(ventana_ticket, font=("Courier New", 10), bd=0, padx=15, pady=15)
         txt_area.insert(tk.END, texto_comprobante)
-        txt_area.config(state="disabled") # Bloquea manipulación de texto por el cajero
+        txt_area.config(state="disabled") # Bloquea manipulación
         txt_area.pack(fill=tk.BOTH, expand=True)
 
         btn_cerrar = tk.Button(
@@ -142,7 +142,7 @@ def mostrar_nueva_venta(frame):
             messagebox.showwarning("Carrito Vacío", "No hay productos para vender.")
             return
             
-        # formas_pago_map = {"Efectivo": 1, "Tarjeta de Débito": 2, "Tarjeta de Crédito": 3}
+        # formas_pago_map = {"Efectivo": 1, "Tarjeta de Débito": 2, "Tarjeta de Crédito": 3, etc}
         seleccion_pago = combo_pago.get()
         id_forma_pago = mapa_formas_pago.get(seleccion_pago, 1)
 
@@ -162,27 +162,6 @@ def mostrar_nueva_venta(frame):
             messagebox.showerror("Error", "Ocurrió un problema en la transacción. Operación abortada.")
 
         # print(auth.USUARIO_ID) ----> GRRRRR... ACÁ ESTABA EL MALDITO 
-
-        '''# Envío del carro completo 
-        exito = registrar_venta_transaccion(id_forma_pago, auth.USUARIO_ID, carrito_actual)
-        
-        if exito:
-            # Emisión del ticket tras confirmación en BD
-            texto_ticket_final = generar_ticket(carrito_actual, total_ventaid_venta=id_factura)
-            mostrar_popup_ticket_visual(texto_ticket_final)
-        
-        # Envío del carro completo a la persistencia transaccional (ACID)
-        id_factura = registrar_venta_transaccion(id_forma_pago, auth.USUARIO_ID, carrito_actual)
-        
-        if id_factura:
-            # Emisión del ticket tras confirmación física en BD
-            generar_ticket(carrito_actual, total_venta, id_venta=id_factura)
-            
-            messagebox.showinfo("Éxito", "Venta registrada y stock descontado exitosamente.")
-            mostrar_nueva_venta(frame) 
-        else:
-            messagebox.showerror("Error", "Ocurrió un problema en la transacción. Operación abortada.")
-            '''
 
     # =========================================================================
     # MAQUETACIÓN 
@@ -257,22 +236,6 @@ def mostrar_nueva_venta(frame):
     
     lbl_total = tk.Label(frame_totales_der, text="TOTAL: $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#c0392b", anchor="e")
     lbl_total.pack(anchor="e", pady=2)
-
-    '''frame_cobro = tk.Frame(panel_der, bg=COLOR_FONDO)
-    frame_cobro.pack(fill=tk.X, padx=5, pady=10)
-
-    tk.Label(frame_cobro, text="Forma de Pago:", bg=COLOR_FONDO).pack(side=tk.LEFT)
-    combo_pago = ttk.Combobox(frame_cobro, values=["Efectivo", "Tarjeta de Débito", "Tarjeta de Crédito"], state="readonly", width=15)
-    combo_pago.current(0)
-    combo_pago.pack(side=tk.LEFT, padx=5)
-
-    lbl_subtotal = tk.Label(frame_cobro, text="Subtotal: $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#000000")
-    lbl_subtotal.pack(side=tk.RIGHT, pady=5)
-    lbl_iva = tk.Label(frame_cobro, text="IVA (21%): $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#000000")
-    lbl_iva.pack(side=tk.RIGHT, pady=5)
-    lbl_total = tk.Label(frame_cobro, text="TOTAL: $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#c0392b")
-    lbl_total.pack(side=tk.RIGHT, pady=5)'''
-
 
 
     tk.Button(panel_der, text="💳 CONFIRMAR Y EMITIR TICKET", bg="#2980b9", fg="white", font=("Arial", 12, "bold"), command=cmd_confirmar_venta).pack(fill=tk.X, padx=20, pady=10)
