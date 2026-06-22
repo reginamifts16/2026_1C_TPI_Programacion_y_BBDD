@@ -58,8 +58,8 @@ def mostrar_gestion_usuarios(frame):
     entry_apellido.grid(row=2, column=1, padx=10, pady=5)
 
     tk.Label(panel_izquierdo, text="Contraseña:", bg=COLOR_FONDO).grid(row=3, column=0, sticky="w", padx=10, pady=5)
-    entry_clave = tk.Entry(panel_izquierdo, width=25)
-    entry_clave.grid(row=3, column=1, padx=10, pady=5)
+    entry_clave = tk.Entry(panel_izquierdo, width=25, show="·")
+    entry_clave.grid(row=3, column=1, padx=10, pady=5) 
 
     tk.Label(panel_izquierdo, text="Rol / Perfil:", bg=COLOR_FONDO).grid(row=4, column=0, sticky="w", padx=10, pady=5)
     # Lista hardcodeada para no hacer otra tabla puente a esta hora

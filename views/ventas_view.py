@@ -14,9 +14,9 @@ CODER: Regina
 
 import tkinter as tk
 from tkinter import ttk, messagebox
-from views.components import limpiar_frame, validar_entrada_numerica, crear_titulo, crear_subtitulo, COLOR_FONDO,  COLOR_BOTON,  COLOR_TEXTO_CLARO
-from logic.ventas import calcular_subtotal_memoria, registrar_venta_transaccion
-from db.dao import buscar_productos_por_nombre
+from views.components import limpiar_frame, validar_entrada_numerica, crear_titulo, crear_subtitulo, COLOR_FONDO,  COLOR_BOTON,  COLOR_TEXTO_CLARO, crear_contenedor_resultados
+from logic.ventas import calcular_subtotal_memoria, registrar_venta_transaccion, procesar_historial_ventas, procesar_detalle_venta, anular_venta_transaccion, obtener_detalle_para_anulacion
+from db.dao import buscar_productos_por_nombre, obtener_historial_ventas, obtener_formas_pago
 from utils.ticket import generar_ticket, formatear_moneda
 import logic.auth as auth
 
@@ -36,8 +36,11 @@ def mostrar_nueva_venta(frame):
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
 
-    # Variable de estado temporal en memoria (Simula estado de POO)
+    # Variable de estado temporal en memoria (no tenemos POO)
     carrito_actual = [] 
+
+    mapa_formas_pago = obtener_formas_pago()
+    nombres_formas_pago = list(mapa_formas_pago.keys())
 
     # =========================================================================
     # FUNCIONES INTERNAS (Controladores de Eventos)
@@ -59,7 +62,7 @@ def mostrar_nueva_venta(frame):
 
         txt_area = tk.Text(ventana_ticket, font=("Courier New", 10), bd=0, padx=15, pady=15)
         txt_area.insert(tk.END, texto_comprobante)
-        txt_area.config(state="disabled") # Bloquea manipulación de texto por el cajero
+        txt_area.config(state="disabled") # Bloquea manipulación
         txt_area.pack(fill=tk.BOTH, expand=True)
 
         btn_cerrar = tk.Button(
@@ -129,33 +132,36 @@ def mostrar_nueva_venta(frame):
 
     def actualizar_total_gui():
         total = calcular_subtotal_memoria(carrito_actual)
-        lbl_total.config(text=f"TOTAL A PAGAR: {formatear_moneda(total)}")
+        lbl_subtotal.config(text=f"Subtotal: {formatear_moneda(total)}")
+        lbl_iva.config(text=f"IVA (21%): {formatear_moneda(total * 0.21)}")
+        lbl_total.config(text=f"Total: {formatear_moneda(total * 1.21)}")
+        
 
     def cmd_confirmar_venta():
         if not carrito_actual:
             messagebox.showwarning("Carrito Vacío", "No hay productos para vender.")
             return
             
-        formas_pago_map = {"Efectivo": 1, "Tarjeta de Débito": 2, "Tarjeta de Crédito": 3}
+        # formas_pago_map = {"Efectivo": 1, "Tarjeta de Débito": 2, "Tarjeta de Crédito": 3, etc}
         seleccion_pago = combo_pago.get()
-        id_forma_pago = formas_pago_map.get(seleccion_pago, 1)
+        id_forma_pago = mapa_formas_pago.get(seleccion_pago, 1)
 
         total_venta = calcular_subtotal_memoria(carrito_actual)
 
-        # print(auth.USUARIO_ID) ----> GRRRRR... ACÁ ESTABA EL MALDITO 
-
-        # Envío del carro completo a la persistencia transaccional (ACID)
-        exito = registrar_venta_transaccion(id_forma_pago, auth.USUARIO_ID, carrito_actual)
+        id_factura = registrar_venta_transaccion(id_forma_pago, auth.USUARIO_ID, carrito_actual)
         
-        if exito:
-            # Emisión del ticket tras confirmación física en BD
-            texto_ticket_final = generar_ticket(carrito_actual, total_venta)
+        if id_factura:
+            datos_bd = obtener_detalle_para_anulacion(id_factura)
+            nombre_vendedor = datos_bd['cabecera']['vendedor'] if datos_bd else "N/A"
+            texto_ticket_final = generar_ticket(carrito_actual, total_venta, nombre_vendedor, id_venta=id_factura)
             mostrar_popup_ticket_visual(texto_ticket_final)
             
-            messagebox.showinfo("Éxito", "Venta registrada y stock descontado exitosamente.")
+            messagebox.showinfo("Éxito", f"Venta registrada. Factura N° {id_factura}")
             mostrar_nueva_venta(frame) 
         else:
             messagebox.showerror("Error", "Ocurrió un problema en la transacción. Operación abortada.")
+
+        # print(auth.USUARIO_ID) ----> GRRRRR... ACÁ ESTABA EL MALDITO 
 
     # =========================================================================
     # MAQUETACIÓN 
@@ -191,7 +197,7 @@ def mostrar_nueva_venta(frame):
     entry_cantidad = tk.Entry(frame_agregar, width=10)
     entry_cantidad.insert(0, "1") 
     entry_cantidad.pack(side=tk.LEFT, padx=5)
-    tk.Button(frame_agregar, text="Agregar al Carrito ➔", bg="#27ae60", fg="white", font=("Arial", 10, "bold"), command=cmd_agregar_carrito).pack(side=tk.RIGHT)
+    tk.Button(frame_agregar, text=" Agregar al Carrito ➔", bg="#27ae60", fg="white", font=("Arial", 10, "bold"), command=cmd_agregar_carrito).pack(side=tk.RIGHT)
 
     # --- PANEL DERECHO ---
     panel_der = tk.LabelFrame(frame_split, text="2. Carrito de Compras", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
@@ -204,16 +210,33 @@ def mostrar_nueva_venta(frame):
         tree_carrito.column(col, width=80)
     tree_carrito.pack(fill=tk.BOTH, expand=True, padx=5, pady=5)
 
+# --- Modificación en el Panel Derecho ---
     frame_cobro = tk.Frame(panel_der, bg=COLOR_FONDO)
     frame_cobro.pack(fill=tk.X, padx=5, pady=10)
 
-    tk.Label(frame_cobro, text="Forma de Pago:", bg=COLOR_FONDO).pack(side=tk.LEFT)
-    combo_pago = ttk.Combobox(frame_cobro, values=["Efectivo", "Tarjeta de Débito", "Tarjeta de Crédito"], state="readonly", width=15)
+    # Contenedor para forma de pago a la izquierda
+    frame_pago_izq = tk.Frame(frame_cobro, bg=COLOR_FONDO)
+    frame_pago_izq.pack(side=tk.LEFT, fill=tk.Y)
+    
+    tk.Label(frame_pago_izq, text="Forma de Pago:", bg=COLOR_FONDO).pack(anchor="w")
+    combo_pago = ttk.Combobox(frame_pago_izq, values=nombres_formas_pago, state="readonly", width=25)
     combo_pago.current(0)
-    combo_pago.pack(side=tk.LEFT, padx=5)
+    combo_pago.pack(anchor="w", pady=5)
 
-    lbl_total = tk.Label(frame_cobro, text="TOTAL A PAGAR: $0.00", bg=COLOR_FONDO, font=("Arial", 14, "bold"), fg="#c0392b")
-    lbl_total.pack(side=tk.RIGHT, pady=5)
+    # Contenedor de totales a la derecha (aquí apilamos verticalmente)
+    frame_totales_der = tk.Frame(frame_cobro, bg=COLOR_FONDO)
+    frame_totales_der.pack(side=tk.RIGHT, fill=tk.Y)
+
+    # Se apilan usando pack() sin especificar 'side', por defecto se apilan verticalmente
+    lbl_subtotal = tk.Label(frame_totales_der, text="Subtotal: $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), anchor="e")
+    lbl_subtotal.pack(anchor="e", pady=2)
+    
+    lbl_iva = tk.Label(frame_totales_der, text="IVA (21%): $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), anchor="e")
+    lbl_iva.pack(anchor="e", pady=2)
+    
+    lbl_total = tk.Label(frame_totales_der, text="TOTAL: $0.00", bg=COLOR_FONDO, font=("Arial", 10, "bold"), fg="#c0392b", anchor="e")
+    lbl_total.pack(anchor="e", pady=2)
+
 
     tk.Button(panel_der, text="💳 CONFIRMAR Y EMITIR TICKET", bg="#2980b9", fg="white", font=("Arial", 12, "bold"), command=cmd_confirmar_venta).pack(fill=tk.X, padx=20, pady=10)
 
@@ -221,178 +244,221 @@ def mostrar_nueva_venta(frame):
 # =============================================================================
 # HISTORIAL DE VENTAS
 # =============================================================================
-
 def mostrar_historial_ventas(frame):
     """
-    PROPÓSITO: Renderiza el historial general de facturas emitidas por la tienda,
-               permitiendo auditoría cruzada a los roles Admin y Gerente.
-
-    CODER: Regina.
-
-    PARÁMETROS:  
-        :frame: (tk.Frame) El contenedor de interfaz provisto por el menú central.
+    PROPÓSITO: Renderiza el historial general de operaciones de la tienda.
+    Valida la selección obligatoria antes de derivar flujos de gestión.
     """
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
     
     crear_titulo(frame, "Historial de Ventas")
-    crear_subtitulo(frame, "Registro general de comprobantes y auditoría transaccional de la tienda.")
+    crear_subtitulo(frame, "Seleccione una factura de la lista para auditar sus detalles o solicitar una baja.")
 
-    # Grilla de Visualización
-    columnas = ("ID Venta", "Fecha/Hora", "Vendedor", "Forma de Pago", "Monto Total")
-    tree_historial = ttk.Treeview(frame, columns=columnas, show="headings", height=12)
+    # Contenedor para la tabla de registros
+    frame_tabla = tk.Frame(frame, bg=COLOR_FONDO)
+    frame_tabla.pack(fill="both", expand=True, padx=20, pady=10)
+
+    columnas = ("id_venta", "fecha", "vendedor", "total")
+    tree_historial = ttk.Treeview(frame_tabla, columns=columnas, show="headings", height=15)
     
-    for col in columnas:
-        tree_historial.heading(col, text=col)
-        tree_historial.column(col, width=130, anchor=tk.CENTER)
+    tree_historial.heading("id_venta", text="N° Factura")
+    tree_historial.heading("fecha", text="Fecha / Hora")
+    tree_historial.heading("vendedor", text="Personal de Venta")
+    tree_historial.heading("total", text="Monto Total")
+
+    tree_historial.column("id_venta", width=120, anchor="center")
+    tree_historial.column("fecha", width=180, anchor="center")
+    tree_historial.column("vendedor", width=280, anchor="w")
+    tree_historial.column("total", width=150, anchor="e")
+    
+    tree_historial.pack(fill="both", expand=True, side="left")
+    
+    scrollbar = ttk.Scrollbar(frame_tabla, orient="vertical", command=tree_historial.yview)
+    tree_historial.configure(yscrollcommand=scrollbar.set)
+    scrollbar.pack(side="right", fill="y")
+
+    # LLenar la grilla 
+    ventas = obtener_historial_ventas()
+    for v in ventas:
+        vendedor_nombre = f"{v.get('nombre', '')} {v.get('apellido', '')}".strip()
+        total_pesos = formatear_moneda(v.get('total', 0))
+        tree_historial.insert("", "end", values=(v.get('id_venta'), v.get('fecha'), vendedor_nombre, total_pesos))
+
+    # --- Controladores de eventos internos ---
+    def procesar_seleccion_mostrar(): 
+        seleccion = tree_historial.selection()
+        if not seleccion:
+            messagebox.showwarning("Selección Requerida", "Debe seleccionar una operación del listado antes de presionar Mostrar.")
+            return
+            
+        # Extraemos datos
+        valores = tree_historial.item(seleccion[0])['values']
+        id_venta = valores[0]
+        vendedor_nombre = valores[2]
         
-    tree_historial.pack(fill=tk.BOTH, expand=True, padx=20, pady=15)
+        # Obtenemos el diccionario con 'cabecera' y 'detalles'
+        datos_completos = obtener_detalle_para_anulacion(id_venta)
+        
+        if datos_completos and datos_completos.get("detalles"):
+            detalles = datos_completos["detalles"]
+            print (datos_completos["detalles"])
+            # Sumamos los subtotales para obtener el total del ticket
+            total_final = sum(float(item.get('subtotal', 0)) for item in detalles) # A VEEEEEEEEEEEEEEEERRRRR?
+            
+            # Generamos el ticket reutilizando la utilidad existente
+            texto_ticket = generar_ticket(detalles, total_final, vendedor_nombre=vendedor_nombre, id_venta=id_venta)
+            
+            # Popup visual (reciclaje!)
+            ventana_ticket = tk.Toplevel()
+            ventana_ticket.title(f"Comprobante - Factura N° {id_venta}")
+            ventana_ticket.geometry("380x520")
+            ventana_ticket.configure(bg="#ffffff")
+            ventana_ticket.grab_set()
+            
+            txt_area = tk.Text(ventana_ticket, font=("Courier New", 10), bd=0, padx=15, pady=15)
+            txt_area.insert(tk.END, texto_ticket)
+            txt_area.config(state="disabled")
+            txt_area.pack(fill=tk.BOTH, expand=True)
+            
+            tk.Button(ventana_ticket, text="Cerrar", bg=COLOR_BOTON, fg=COLOR_TEXTO_CLARO, command=ventana_ticket.destroy).pack(fill=tk.X, padx=20, pady=10)
+            
+        else:
+            messagebox.showerror("Error", "No se pudo recuperar el detalle de la operación.")
+
+    def procesar_seleccion_anular():
+        # Verificación explícita de selección obligatoria solicitada
+        seleccion = tree_historial.selection()
+        if not seleccion:
+            messagebox.showwarning("Selección Requerida", "Debe seleccionar una operación del listado antes de presionar Anular.")
+            return
+            
+        valores = tree_historial.item(seleccion[0])['values']
+        id_venta = valores[0]
+        
+        # Redirección automática 
+        mostrar_anular_venta(frame, id_venta_predefinido=id_venta)
+
+    # Panel inferior de interacción
+    frame_botones = tk.Frame(frame, bg=COLOR_FONDO)
+    frame_botones.pack(pady=20)
+
+    btn_mostrar = tk.Button(frame_botones, text="Mostrar Detalle", bg=COLOR_BOTON, fg=COLOR_TEXTO_CLARO, font=("Arial", 11, "bold"), width=18, command=procesar_seleccion_mostrar)
+    btn_mostrar.pack(side="left", padx=15)
+
+    btn_anular = tk.Button(frame_botones, text="Anular Operación", bg="#cc0000", fg=COLOR_TEXTO_CLARO, font=("Arial", 11, "bold"), width=18, command=procesar_seleccion_anular)
+    btn_anular.pack(side="left", padx=15)
 
 
 # =============================================================================
-# ANULACION DE VENTA
+# ANULACIÓN DE VENTA
 # =============================================================================
-def mostrar_anular_venta(frame):
+def mostrar_anular_venta(frame, id_venta_predefinido=None):
     """
-    PROPÓSITO: Interfaz gráfica de reversión de operaciones. Permite buscar una factura,
-               inspeccionar visualmente sus artículos y montos, y ejecutar la anulación
-               atómica con restitución automática de inventario.
-
-    CODER: Regina.
-
-    PARÁMETROS:  
-        :frame: (tk.Frame) El contenedor de interfaz provisto por el menú central.
+    PROPÓSITO: Interfaz gráfica de reversión de operaciones de caja.
+    Soporta la precarga y ejecución automatizada cuando proviene del historial.
     """
     limpiar_frame(frame)
     frame.config(bg=COLOR_FONDO)
     
     crear_titulo(frame, "Anulación de Comprobantes")
-    crear_subtitulo(frame, "Busque la factura por su número de ID e inspeccione los artículos antes de confirmar la baja.")
+    crear_subtitulo(frame, "Inspeccione los artículos vinculados a la transacción antes de confirmar su revocación.")
 
-    # --- PANEL SUPERIOR: BUSCADOR ---
+    # Panel de Búsqueda Manual / Control
     frame_busqueda = tk.Frame(frame, bg=COLOR_FONDO)
-    frame_busqueda.pack(fill=tk.X, padx=20, pady=10)
+    frame_busqueda.pack(pady=10)
 
-    tk.Label(frame_busqueda, text="Número de Factura ID:", font=("Arial", 10, "bold"), bg=COLOR_FONDO).pack(side=tk.LEFT)
-    entry_id_venta = tk.Entry(frame_busqueda, width=15, font=("Arial", 10, "bold"))
-    entry_id_venta.pack(side=tk.LEFT, padx=10)
+    tk.Label(frame_busqueda, text="N° Factura:", bg=COLOR_FONDO, font=("Arial", 11, "bold")).pack(side="left", padx=5)
+    entry_id_venta = tk.Entry(frame_busqueda, font=("Arial", 11), width=15)
+    entry_id_venta.pack(side="left", padx=5)
 
-    # --- PANEL CENTRAL: VISUALIZADOR DE DATOS DE LA OPERACIÓN ---
-    panel_datos = tk.LabelFrame(frame, text=" Datos de la Factura Encontrada ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
-    panel_datos.pack(fill=tk.BOTH, expand=True, padx=20, pady=10)
+    # Panel contenedor de datos (panel_datos solicitado)
+    panel_datos = tk.LabelFrame(frame, text=" Desglose de Artículos Registrados ", bg=COLOR_FONDO, font=("Arial", 10, "bold"))
+    panel_datos.pack(fill="both", expand=True, padx=20, pady=10)
 
-    # Etiquetas informativas de cabecera
-    frame_info_cabe = tk.Frame(panel_datos, bg=COLOR_FONDO)
-    frame_info_cabe.pack(fill=tk.X, padx=10, pady=5)
-
-    lbl_fecha = tk.Label(frame_info_cabe, text="Fecha: --/--/----", bg=COLOR_FONDO, anchor=tk.W)
-    lbl_fecha.grid(row=0, column=0, padx=15, pady=2, sticky="w")
-    lbl_vendedor = tk.Label(frame_info_cabe, text="Cajero: ----------", bg=COLOR_FONDO, anchor=tk.W)
-    lbl_vendedor.grid(row=0, column=1, padx=15, pady=2, sticky="w")
-    lbl_pago = tk.Label(frame_info_cabe, text="Forma de Pago: ----------", bg=COLOR_FONDO, anchor=tk.W)
-    lbl_pago.grid(row=0, column=2, padx=15, pady=2, sticky="w")
-
-    # Tabla interna para ver los ítems vendidos
-    columnas_items = ("Producto", "Marca", "Cantidad", "P. Unitario", "Subtotal")
-    tree_items_factura = ttk.Treeview(panel_datos, columns=columnas_items, show="headings", height=6)
-    for col in columnas_items:
-        tree_items_factura.heading(col, text=col)
-        tree_items_factura.column(col, width=100, anchor=tk.CENTER)
-    tree_items_factura.pack(fill=tk.BOTH, expand=True, padx=10, pady=5)
-
-    lbl_total_factura = tk.Label(panel_datos, text="TOTAL FACTURADO: $0.00", font=("Arial", 12, "bold"), bg=COLOR_FONDO, fg="#c0392b")
-    lbl_total_factura.pack(pady=5, anchor=tk.E, padx=10)
-
-
-    # =========================================================================
-    # FUNCIONES LOGICAS INTERNAS (Controladores / Clausuras)
-    # =========================================================================
+    columnas = ("descripcion", "marca", "cantidad", "precio", "subtotal")
+    tree_detalle = ttk.Treeview(panel_datos, columns=columnas, show="headings", height=10)
     
-    def cmd_buscar_factura():
-        factura_id_txt = entry_id_venta.get().strip()
-        if not validar_entrada_numerica(factura_id_txt):
-            messagebox.showerror("Error", "Debe ingresar un número de ID de factura válido.")
-            return
-            
-        # Limpia grilla por las dudas
-        for row in tree_items_factura.get_children():
-            tree_items_factura.delete(row)
-            
-        # Llamamos al dao
-        from db.dao import obtener_venta_completa
-        factura_encontrada = obtener_venta_completa(int(factura_id_txt))
-        
-        if not factura_encontrada:
-            messagebox.showwarning("No Encontrada", f"La Factura #{factura_id_txt} no existe en la base de datos.")
-            # Desactivar controles de borrado por seguridad (Escudo anti-falsos positivos)
-            lbl_fecha.config(text="Fecha: --/--/----")
-            lbl_vendedor.config(text="Cajero: ----------")
-            lbl_pago.config(text="Forma de Pago: ----------")
-            lbl_total_factura.config(text="TOTAL FACTURADO: $0.00")
-            btn_anular.config(state="disabled")
-            return
-            
-        # Si la encuentra -> cargamos la interfaz
-        cabe = factura_encontrada['cabecera']
-        lbl_fecha.config(text=f"Fecha: {cabe['fecha']}")
-        lbl_vendedor.config(text=f"Cajero: {cabe['vendedor']}")
-        lbl_pago.config(text=f"Pago: {cabe['forma_pago']}")
-        
-        total_acumulado = 0.0
-        for item in factura_encontrada['detalles']:
-            tree_items_factura.insert("", tk.END, values=(
-                item['descripcion'], 
-                item['marca'], 
-                item['cantidad'], 
-                f"${item['precio_unitario']}", 
-                f"${item['subtotal']}"
-            ))
-            total_acumulado += float(item['subtotal'])
-            
-        lbl_total_factura.config(text=f"TOTAL FACTURADO: ${total_acumulado:.2f}")
-        
-        # Habilitamos el botón de borrado
-        btn_anular.config(state="normal")
+    tree_detalle.heading("descripcion", text="Descripción del Producto")
+    tree_detalle.heading("marca", text="Marca")
+    tree_detalle.heading("cantidad", text="Cant.")
+    tree_detalle.heading("precio", text="P. Unitario")
+    tree_detalle.heading("subtotal", text="Subtotal Item")
+    
+    tree_detalle.column("descripcion", width=300, anchor="w")
+    tree_detalle.column("marca", width=120, anchor="center")
+    tree_detalle.column("cantidad", width=70, anchor="center")
+    tree_detalle.column("precio", width=120, anchor="e")
+    tree_detalle.column("subtotal", width=120, anchor="e")
+    tree_detalle.pack(fill="both", expand=True, padx=10, pady=10)
 
-
-    def cmd_ejecutar_anulacion():
+    # --- Métodos internos 
+    def ejecutar_busqueda_especifica():
+        # limpia  panel de datos
+        for item in tree_detalle.get_children():
+            tree_detalle.delete(item)
+            
         factura_id = entry_id_venta.get().strip()
+        if not factura_id.isdigit():
+            messagebox.showwarning("Entrada Inválida", "Por favor, especifique un número de factura estrictamente numérico.")
+            return
+
+        #  dict {"cabecera": {...}, "detalles": [...]}
+        datos_venta = obtener_detalle_para_anulacion(int(factura_id))
         
-        # Doble chequeo de gobernanza operativa
-        respuesta = messagebox.askyesno(
-            " ATENCIÓN - Confirmar Anulación de la Operación", 
-            f"¿Está seguro de que desea eliminar la Factura #{factura_id}?\n\nEsta acción es irreversible: borrará los registros y devolverá los ítems al stock."
-        )
+        # que traiga detalles
+        if not datos_venta or not datos_venta.get("detalles"):
+            messagebox.showinfo("Búsqueda", f"No se encontraron registros asociados al comprobante N° {factura_id}.")
+            return
+            
+        # aisla artículos
+        detalles_factura = datos_venta["detalles"]
         
-        if not respuesta:
-            return 
+        for fila in detalles_factura:
+            desc = fila.get('descripcion', 'Desconocido')
+            marca = fila.get('marca', 'N/A')
+            cant = fila.get('cantidad', 0)
+            precio = fila.get('precio_unitario', 0)
+            subtotal = fila.get('subtotal', 0) # El subtotal ya viene calculado 
+            
+            tree_detalle.insert("", "end", values=(
+                desc,
+                marca,
+                cant,
+                formatear_moneda(precio),
+                formatear_moneda(subtotal)
+            ))
 
-        # Invocamos la transacción  
-        from logic.ventas import anular_venta_transaccion
-        exito, mensaje = anular_venta_transaccion(int(factura_id))
 
-        if exito:
-            messagebox.showinfo("Éxito", mensaje)
-            # Forzamos una recarga limpia de la pantalla para vaciar los datos borrados
-            mostrar_anular_venta(frame)
-        else:
-            messagebox.showerror("Error de Reversión", mensaje)
+    def confirmar_reversion_total():
+        factura_id = entry_id_venta.get().strip()
+        if not factura_id.isdigit() or not tree_detalle.get_children():
+            messagebox.showwarning("Operación Requerida", "Debe cargar una factura válida con artículos en el panel antes de confirmar.")
+            return
+            
+        seguridad = messagebox.askyesno("Reversión Crítica de Stock", 
+                                        f"¿Confirma la anulación atómica de la factura N° {factura_id}?\n\nEsta acción eliminará los registros de venta y repondrá las cantidades en el inventario.")
+        if seguridad:
+            try:
+                anular_venta_transaccion(int(factura_id))
+                messagebox.showinfo("Éxito", f"La factura N° {factura_id} fue eliminada. El inventario se ha actualizado.")
+                mostrar_historial_ventas(frame)
+            except Exception as e:
+                messagebox.showerror("Fallo de Transacción", f"Error crítico al revertir la operación en la base de datos: {e}")
 
+    # Montaje de controles interactivos en la vista
+    btn_buscar = tk.Button(frame_busqueda, text="🔍 Buscar Factura", bg=COLOR_BOTON, fg=COLOR_TEXTO_CLARO, font=("Arial", 10, "bold"), command=ejecutar_busqueda_especifica)
+    btn_buscar.pack(side="left", padx=10)
 
-    # Asignamos la función de búsqueda al botón de la lupa
-    tk.Button(frame_busqueda, text="🔍 Buscar Factura", bg=COLOR_BOTON, fg=COLOR_TEXTO_CLARO, command=cmd_buscar_factura).pack(side=tk.LEFT)
+    btn_confirmar = tk.Button(frame, text="Confirmar Anulación", bg="#cc0000", fg=COLOR_TEXTO_CLARO, font=("Arial", 11, "bold"), width=25, command=confirmar_reversion_total)
+    btn_confirmar.pack(pady=15)
 
-    # --- PANEL INFERIOR: ACCIÓN DE BORRADO ---
-    # Inicia deshabilitado por seguridad (state="disabled")
-    btn_anular = tk.Button(
-        frame, 
-        text="CONFIRMAR ANULACIÓN Y REINTEGRAR STOCK", 
-        bg="#c0392b", 
-        fg="white", 
-        font=("Arial", 11, "bold"),
-        state="disabled", 
-        command=cmd_ejecutar_anulacion
-    )
-    btn_anular.pack(fill=tk.X, padx=20, pady=15)
+    # --- AUTOMATIZACIÓN DE FLUJO DESDE HISTORIAL ---
+    # Si la función detecta que recibió un ID, lo escribe en el Entry
+    # y rellena el panel
+    if id_venta_predefinido is not None:
+        entry_id_venta.delete(0, tk.END)
+        entry_id_venta.insert(0, str(id_venta_predefinido))
+        ejecutar_busqueda_especifica()
 
 

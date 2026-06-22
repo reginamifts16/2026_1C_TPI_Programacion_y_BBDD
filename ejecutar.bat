@@ -20,5 +20,4 @@ if errorlevel 1 (
 ) else (
     echo.
     echo La aplicacion finalizo.
-    pause
 )

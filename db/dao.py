@@ -13,6 +13,22 @@ CODER ZERO: Regina
 from db.connection import conectar_bd
 
 # =============================================================================
+# OBTIENE FORMAS DE PAGO
+# =============================================================================
+def obtener_formas_pago():
+    """ PROPÓSITO: Recupera el catálogo dinámico de formas de pago desde la BD. """
+    conexion = conectar_bd()
+    if not conexion: return {}
+    try:
+        cursor = conexion.cursor(dictionary=True)
+        cursor.execute("SELECT id_forma_pago, forma_pago FROM FormaPago")
+        # Retorna un diccionario: {"Efectivo": 1, "Tarjeta": 2...}
+        return {fila['forma_pago']: fila['id_forma_pago'] for fila in cursor.fetchall()}
+    finally:
+        cursor.close()
+        conexion.close()
+
+# =============================================================================
 # BUSCA USUARIO POR NOMBRE
 # =============================================================================
 def obtener_usuario_por_username(username_ingresado):
@@ -479,6 +495,11 @@ def obtener_categorias():
         conexion.close()
 
 
+
+# *****************************************************************************
+# *                             REPORTES VARIOS                               *
+# *****************************************************************************
+
 # =============================================================================
 # MUESTRA RENDIMIENTOS POR MES
 # =============================================================================
@@ -608,7 +629,9 @@ def obtener_ranking_productos(limite=10):
         conexion.close()
 
 
-
+# =============================================================================
+# OBTENER EL VENTAS POR FORMA DE PAGO
+# =============================================================================
 def obtener_ventas_por_forma_pago():
     """
     Agrupa y suma los ingresos según forma de pago 
@@ -642,9 +665,49 @@ def obtener_ventas_por_forma_pago():
 
 
 # =============================================================================
-# GESTIÓN DE USUARIOS (ABM)
+# OBTENER EL HISTORIAL DE VENTAS
 # =============================================================================
+def obtener_historial_ventas():
+    """ 
+    PROPÓSITO: Recupera todas las cabeceras de venta para la pantalla de historial. 
+    """
+    conexion = conectar_bd()
+    if not conexion: 
+        return []
+        
+    try:
+        cursor = conexion.cursor(dictionary=True)
+        # Usamos los nombres exactos de tus tablas: Venta, Usuario y DetalleVenta
+        query = """
+            SELECT 
+                v.id_venta, 
+                v.fecha, 
+                SUM(d.cantidad * d.precio_unitario) AS total, 
+                u.nombre, 
+                u.apellido
+            FROM Venta v
+            LEFT JOIN Usuario u ON v.id_usuario = u.id_usuario
+            LEFT JOIN DetalleVenta d ON v.id_venta = d.id_venta
+            GROUP BY v.id_venta, v.fecha, u.nombre, u.apellido
+            ORDER BY v.fecha DESC
+        """
+        cursor.execute(query)
+        return cursor.fetchall()
+    except Exception as e:
+        print(f"Error al obtener el historial de ventas: {e}")
+        return []
+    finally:
+        cursor.close()
+        conexion.close()
 
+
+# *****************************************************************************
+# *                     GESTIÓN DE USUARIOS (ABM)                             *
+# *****************************************************************************
+
+# =============================================================================
+# OBTENER TODOS LOS USUARIOS
+# =============================================================================
 def obtener_todos_los_usuarios():
     """Trae todos los usuarios para armar la grilla del Admin."""   
     conexion = conectar_bd()
@@ -662,6 +725,10 @@ def obtener_todos_los_usuarios():
         cursor.close()
         conexion.close()
 
+
+# =============================================================================
+# NUEVO USUARIO
+# =============================================================================
 def insertar_usuario(apellido, nombre, clave, id_rol):
     """Alta de usuario."""
     from db.connection import conectar_bd
@@ -682,6 +749,10 @@ def insertar_usuario(apellido, nombre, clave, id_rol):
         cursor.close()
         conexion.close()
 
+
+# =============================================================================
+# MODIFICAR USUARIO
+# =============================================================================
 def modificar_usuario(id_usuario, apellido, nombre, clave, id_rol):
     """Modificación de los datos del usuario."""
     from db.connection import conectar_bd
@@ -702,6 +773,10 @@ def modificar_usuario(id_usuario, apellido, nombre, clave, id_rol):
         cursor.close()
         conexion.close()
 
+
+# =============================================================================
+# BAJA DE USUARIO
+# =============================================================================
 def baja_logica_usuario(id_usuario):
     """Baja Lógica: Pasa activo a 0."""
     from db.connection import conectar_bd
@@ -720,7 +795,11 @@ def baja_logica_usuario(id_usuario):
     finally:
         cursor.close()
         conexion.close()
-        
+
+
+# =============================================================================
+# REACTIVAR USUARIO
+# =============================================================================
 def reactivar_usuario(id_usuario):
     """Pasa activo a 1."""
     from db.connection import conectar_bd
@@ -739,3 +818,4 @@ def reactivar_usuario(id_usuario):
     finally:
         cursor.close()
         conexion.close()
+

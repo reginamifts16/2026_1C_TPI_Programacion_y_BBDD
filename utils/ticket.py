@@ -13,7 +13,7 @@ CODER: Jennifer
 import datetime
 from utils.helpers import calcular_iva, formatear_moneda
 
-def generar_ticket(carrito, total_final, vendedor_nombre="Cajero"):
+def generar_ticket(carrito, total, vendedor_nombre="Vendedor", id_venta="N/A"):
     """
     PROPÓSITO: Genera una cadena de texto (ASCII Art) que simula un comprobante 
     para ser mostrado en pantalla o enviado a una impresora térmica.
@@ -29,18 +29,20 @@ def generar_ticket(carrito, total_final, vendedor_nombre="Cajero"):
         :ticket_str: (str) El comprobante formateado y listo para imprimir.
     """
     # Cálculos para el desglose 
-    subtotal_sin_iva = total_final / 1.21
+    subtotal_sin_iva = float(total)
     monto_iva = calcular_iva(subtotal_sin_iva)
-    
+    total_final = total + monto_iva
     fecha_actual = datetime.datetime.now().strftime("%d/%m/%Y %H:%M:%S")
+    factura_formateada = str(id_venta).zfill(8) if str(id_venta).isdigit() else str(id_venta)
 
     # Armado del ticket (40 caracteres de ancho)
     ticket = []
     ticket.append("=" * 40)
     ticket.append("          TECNO STORE S.A.          ")
     ticket.append("=" * 40)
+    ticket.append(f"Factura Nº: {factura_formateada}")
     ticket.append(f"Fecha: {fecha_actual}")
-    ticket.append(f"Atendido por: {vendedor_nombre}")
+    ticket.append(f"Vendedor: {vendedor_nombre}")
     ticket.append("-" * 40)
     ticket.append("CANT  DESCRIPCIÓN          SUBTOTAL")
     ticket.append("-" * 40)

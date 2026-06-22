@@ -11,6 +11,7 @@ CODER ZERO: Regina
 """
 from db.connection import conectar_bd
 from logic.auth import USUARIO_ID
+from db.dao import obtener_historial_ventas, obtener_venta_completa
 
 # =============================================================================
 # REGISTRO DE VENTA
@@ -64,7 +65,7 @@ def registrar_venta_transaccion(id_forma_pago, USUARIO_ID, carrito):
 
         # 3. Confirmación atómica de cambios en la base de datos
         conexion.commit()
-        exito = True
+        exito = id_venta
 
     except Exception as e:
         conexion.rollback()
@@ -108,7 +109,7 @@ def anular_venta_transaccion(id_venta):
     PROPÓSITO: Revierte una venta iterando los detalles para sortear el Safe Update 
                de MySQL. Restaura el stock y elimina registros (Detalle y Cabecera).
 
-    CODER: Cristian / Regina.
+    CODER: Regina.
 
     PARÁMETROS:  
         :id_venta: (int) El identificador único de la factura a anular.
@@ -163,3 +164,24 @@ def anular_venta_transaccion(id_venta):
     finally:
         cursor.close()
         conexion.close()
+
+
+def obtener_detalle_para_anulacion(id_venta):
+    """
+    PROPÓSITO: Recupera el desglose completo de artículos de una factura
+    invocando la función de persistencia unificada del DAO.
+    """
+    return obtener_venta_completa(id_venta)
+
+
+# =============================================================================
+# VENTAS HISTÓRICAS
+# =============================================================================
+
+def procesar_historial_ventas():
+    """ Puente lógico para traer el listado general de ventas """
+    return obtener_historial_ventas()
+
+def procesar_detalle_venta(id_venta):
+    """ Puente lógico para traer la cabecera y el detalle de una venta específica """
+    return obtener_venta_completa(id_venta)
