@@ -8,7 +8,10 @@ Sistema integral de gestión y Punto de Venta (POS) para comercios minoristas de
 
 El proyecto fue diseñado utilizando una estricta **arquitectura por capas** para separar la lógica de negocio, el acceso a persistencia (BBDD) y la interfaz gráfica, garantizando escalabilidad y un código limpio.
 
----
+<p align="center">
+  <img src="images/captura.jpeg" alt="Pantalla principal de Tecno Store" width="900">
+</p>
+
 
 ## Objetivos
 
@@ -18,7 +21,7 @@ El proyecto fue diseñado utilizando una estricta **arquitectura por capas** par
 - Facilitar la gestión de inventario, abastecimiento y ventas al público.
 - Extraer inteligencia de negocio (reportes) para la toma de decisiones gerenciales.
 
----
+
 
 ## Funcionalidades Principales
 
@@ -48,7 +51,7 @@ El proyecto fue diseñado utilizando una estricta **arquitectura por capas** par
 - Rendimiento mensual por vendedor.
 - Análisis de ventas según forma de pago.
 
----
+
 
 ## Roles del Sistema
 
@@ -59,7 +62,7 @@ El menú principal se adapta dinámicamente según quién inicie sesión:
 * **🤝 Vendedor:** Restringido al registro de operaciones en mostrador (POS), consulta de stock disponible y visualización de sus propias métricas mensuales.
 * **🚚 Depositero:** Perfil logístico. Enfocado en el ingreso de mercadería, gestión del catálogo y control de productos activos/inactivos.
 
----
+
 
 ## Arquitectura del Software (Modelo Multicapa)
 
@@ -116,7 +119,7 @@ Principales entidades relacionales gestionadas por MySQL:
 
 **Relaciones clave:** Implementación estricta de integridad referencial. Una venta agrupa múltiples detalles (productos), registrados por un usuario específico y abonados mediante una forma de pago. 
 
----
+
 
 ## Tecnologías y Principios
 
@@ -129,7 +132,7 @@ Principales entidades relacionales gestionadas por MySQL:
   - Control de concurrencia y Transacciones Críticas (`commit` / `rollback`).
   - Extracción de datos vía Vistas SQL (`LEFT JOIN`, `GROUP BY`).
 
----
+
 
 ## Guía de Instalación y Despliegue 
 
@@ -153,7 +156,7 @@ Principales entidades relacionales gestionadas por MySQL:
 - El sistema iniciará la interfaz gráfica.
 - *Nota: Para probar el sistema con privilegios máximos, inicie sesión con las credenciales del Administrador.*
 
----
+
 
 ## Equipo de Desarrollo
 
@@ -164,7 +167,7 @@ Principales entidades relacionales gestionadas por MySQL:
 | **María Fernanda Jurado** | Integración Frontend (Tkinter) · Validaciones UI · Testing · Documentación |
 | **Jennifer Moyano** | Diseño de Componentes QA · Utilidades · Analítica y Reportes · Documentación |
 
----
+
 
 ## Licencia
 
