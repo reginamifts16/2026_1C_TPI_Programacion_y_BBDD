@@ -2,6 +2,12 @@
 
 Sistema integral de gestión y Punto de Venta (POS) para comercios minoristas de productos tecnológicos.
 
+### Estado del repositorio
+
+La rama main conserva la versión original entregada a los docentes como parte de la evaluación del trabajo práctico y permanece congelada a modo de referencia.
+
+Las mejoras posteriores al proceso de evaluación, incluyendo correcciones de lógica y optimizaciones de usabilidad implementadas durante la preparación de la defensa, se encuentran en la rama mejoras-usabilidad, correspondiente al Release v1.1.
+
 ## Descripción
 
 **Tecno Store** es una aplicación de escritorio diseñada para centralizar, controlar y optimizar los flujos comerciales y logísticos de una tienda tecnológica. Desarrollada como Trabajo Práctico Integrador para las asignaturas **Técnicas de Programación** y **Administración y Gestión de Bases de Datos** del **IFTS N.º 16**.
